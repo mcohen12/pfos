@@ -47,12 +47,36 @@
   var actionHeight = riverData[i].action;var minorHeight = riverData[i].minor;var moderateHeight = riverData[i].moderate;var majorHeight = riverData[i].major;var recordHeight = riverData[i].record.height;
  
 
-  var stageLines = [riverData[i].action, riverData[i].minor, riverData[i].moderate, riverData[i].major, riverData[i].record.height];
+  //var stageLines = [riverData[i].action, riverData[i].minor, riverData[i].moderate, riverData[i].major, riverData[i].record.height];
+  var stageLines1 = [riverData[i].action, riverData[i].minor];
+  var stageLines2 = [riverData[i].moderate, riverData[i].major, riverData[i].record.height];
   tester = document.getElementById('highContainer');
   var myOptions = {
    legend: { labels: { fontColor: 'lime'}}
   };
-  var myChart = new Chart(tester,{ 
+  var myChart = new Chart(tester,{
+   type: 'line',
+   data: {
+    datasets: [{
+     label: 'stageLines1',
+     data: stageLines1,
+     borderColor: 'lime',
+     fill: false
+    },
+    {
+     label: 'stageLines2',
+     data: stageLines2,
+     borderColor: 'magenta',
+     fill: false
+    }],
+   labels: ['']
+   },
+   options: myOptions
+  });
+ }
+ 
+ 
+/*  var myChart = new Chart(tester,{ 
    type: 'bar',
    data: { 
     datasets: [{ 
@@ -69,7 +93,7 @@
    },
    options: myOptions
   });
- }
+ } */
 
 /*
   var i=0;
