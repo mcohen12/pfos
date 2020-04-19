@@ -52,23 +52,19 @@
   var stageLines2 = [riverData[i].moderate, riverData[i].major, riverData[i].record.height];
   tester = document.getElementById('highContainer');
   var myOptions = {
-   legend: { labels: { fontColor: 'lime'}}
+   legend: { labels: { fontColor: 'lime'}},
+   title: {display:true, fontSize: 30, lineHeight: 1.5, text: '2020 Spring Flood Outlook for '+pointName}
   };
   var myChart = new Chart(tester,{
    type: 'line',
    data: {
-    datasets: [{
-     label: 'stageLines1',
-     data: stageLines1,
-     borderColor: 'lime',
-     fill: false
-    },
-    {
-     label: 'stageLines2',
-     data: stageLines2,
-     borderColor: 'magenta',
-     fill: false
-    }],
+    datasets: [
+    {label: 'Action',data: [actionHeight,actionHeight],borderColor:'rgb(158,191,57)',borderCapStyle:'square',fill: false},
+    {label: 'Minor',data: [minorHeight,minorHeight], borderColor: 'rgb(237,176,7)',borderCapStyle:'square',fill: false},
+    {label: 'Moderate',data: [moderateHeight,moderateHeight],borderColor:'rgb(237,53,17)',borderCapStyle:'square',fill: false},
+    {label: 'Major',data: [majorHeight,majorHeight],borderColor:'rgb(179,57,219)',borderCapStyle:'square',fill: false},
+    {label: 'Record',data: [recordHeight,recordHeight],borderColor:'rgb(0,0,0)',borderCapStyle:'square',borderDash:[10,10],fill: false} 
+    ],
    labels: ['']
    },
    options: myOptions
