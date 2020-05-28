@@ -66,15 +66,11 @@
     {label: 'Record',data: [recordHeight,recordHeight],borderColor:'rgb(0,0,0)',radius:0,borderDash:[10,10],fill: false, 
     datalabels: {
      labels: {
-      name: {
-       align: 'top',
-       font: {size: 16},
-       formatter: function(value, tester){
-        if (tester.dataIndex == 0)
+      name: {align: -45,font: {size: 16},formatter: function(value, tester){ return tester.dataIndex == 0 ? "Michelle" : ""; } /*{
          return "Michelle";
         else
          return "";
-       }
+       }*/
       /* formatter:function(value,tester){
         return tester.active ? 'name' : 'Michelle';
        }*/
