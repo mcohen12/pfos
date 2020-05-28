@@ -40,6 +40,32 @@
                        ];
 
  function makeBox(point,pointName,pointID){
+  var req = new XMLHttpRequest();
+  var reqLink = "https://water.weather.gov/ahps2/hydrograph_to_xml.php?output=xml&gage="+pointID;
+  req.open('GET',reqLink,true);
+  req.addEventListener('load', function(){
+   if (req.status == 200){
+    parser = new DOMParser();
+    xmlDoc = parser.parseFromString(req.responseText, "text/xml");
+    var sigStages = xmlDoc.querySelector("sigstages");
+    var actionHeight = parseInt(sigStages.querySelector("action").textContent);
+    var minorHeight = parseInt(sigStages.querySelector("flood").textContent);
+    var moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
+    var majorHeight = parseInt(sigStages.querySelector("major").textContent);
+    var recordHeight = parseInt(sigStages.querySelector("record").textContent);
+    var observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
+    
+    console.log("recordHeight is "+recordHeight);
+    console.log("observed is "+observed);
+    makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,recordHeight,observed);
+   }
+   else
+    console.log("got an error");
+  });
+  req.send();
+ }
+ function makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,recordHeight,observedHeight){
+
   tester = document.getElementById('highContainer');
   var i=0;
   var id = pointID;
@@ -62,7 +88,8 @@
    data.push(exceed0,exceed1,exceed2);
   }
   
-  var actionHeight = riverData[i].action;var minorHeight = riverData[i].minor;var moderateHeight = riverData[i].moderate;var majorHeight = riverData[i].major;var recordHeight = riverData[i].record.height;
+//  var actionHeight = riverData[i].action;
+//var minorHeight = riverData[i].minor;var moderateHeight = riverData[i].moderate;var majorHeight = riverData[i].major;var recordHeight = riverData[i].record.height;
   for (var j=0; j<riverData[i].notableCrests.length;j++){
    var height = riverData[i].notableCrests[j].height;
    var notable0 = { showlegend:false, x: [88], y:[height], mode: 'text', text: [height], legendgroup:'notable',hoverinfo:"none"}; 
@@ -78,14 +105,14 @@
   }
   var record = {
    showlegend: false,
-   x: [0, 98], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+riverData[i].record.year], textposition: 'top right',
+   x: [0, 98], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+riverData[i].record.year], textposition: 'top right',hoverinfo:"none",
    line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'
    }
   };
   var action = {
    showlegend: false,
    x: [0, 98], y: [actionHeight,actionHeight], mode: 'lines+text', text: ['Action ('+actionHeight+' ft)'],
-   textposition: 'top right',
+   textposition: 'top right',hoverinfo:"none",
    line: {
     color: 'rgb(158,191,57)',
     width: 2
@@ -97,7 +124,7 @@
    y: [minorHeight,minorHeight],
    mode: 'lines+text',
    text: ['Minor ('+minorHeight+' ft)'],
-   textposition: 'top right',
+   textposition: 'top right',hoverinfo:"none",
    line: {
     color: 'rgb(237,176,7)'
    }
@@ -107,7 +134,7 @@
    x: [0, 98],
    y: [moderateHeight,moderateHeight],
    mode: 'lines+text',
-   text: ['Moderate ('+moderateHeight+' ft)'],
+   text: ['Moderate ('+moderateHeight+' ft)'],hoverinfo:"none",
    textposition: 'top right',
    line: {
     color: 'rgb(237,53,17)',
@@ -117,7 +144,7 @@
   var major = {
    showlegend: false,
    x: [0, 98],
-   y: [majorHeight,majorHeight],
+   y: [majorHeight,majorHeight],hoverinfo:"none",
    mode: 'lines+text',
    text: ['Major ('+majorHeight+' ft)'],
    textposition: 'top right',
@@ -126,7 +153,6 @@
     width: 2
    }
   };
-
   data.push(action,minor,moderate,major,record);
   var layout = {
    title: '2020 Spring Flood Outlook for '+pointName,
@@ -168,10 +194,44 @@
     yanchor: 'middle',
     text: 'Probability of Exceedence',
     showarrow: false 
-   }]
+   },
+   {
+    xref: 'paper',
+    yref: 'paper',
+    x: 0.2,
+    y: 0.05,
+    xanchor: 'left',
+    textangle:0,
+    yanchor: 'middle',
+    text: 'River Level: '+observedHeight+' ft as of __ need to get day and convert from UTC ',
+    showarrow: false,hoverinfo:"none"
+   }
+   ]
   };
    
   Plotly.newPlot(tester, data, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
+ }
+
+
+ function makeBoxTest(point,pointName,id){
+  var req = new XMLHttpRequest();
+  var reqLink = "https://water.weather.gov/ahps2/hydrograph_to_xml.php?output=xml&gage="+id;
+  req.open('GET',reqLink,true);
+  req.addEventListener('load', function(){
+   if (req.status == 200){
+    parser = new DOMParser();
+    xmlDoc = parser.parseFromString(req.responseText, "text/xml");
+   
+    //var myOut = xmlDoc.getElementsByTagName("observed")[0];
+    //var myOut2 = myOut.getElementsByTagName("datum")[0];
+    var myOut2 = (xmlDoc.querySelector("observed datum primary")).textContent;
+    
+    console.log(myOut2);
+   }
+   else
+    console.log("got an error");
+  });
+  req.send();
  }
 
 
