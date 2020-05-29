@@ -47,14 +47,12 @@
   tester = document.getElementById('highContainer');
   var i=0;
   var id = pointID;
-  /*find the right river */
+  //find the right river
   while (id != riverData[i].id && i < riverData.length)
    i++;
   
   var data = [];
   
-//  var exceedDummy = { showlegend:true,xref:'paper',yref:'paper',x:[0],y:[0],name:"Probability of Exceedance"};
- // data.push(exceedDummy);
   for (var k=0; k<percentExceed[i].exceedance.length;k++){
    var height = percentExceed[i].exceedance[k].height;
    var percent = percentExceed[i].exceedance[k].percent+"%";
@@ -66,8 +64,6 @@
    data.push(exceed0,exceed1,exceed2);
   }
   
-//  var actionHeight = riverData[i].action;
-//var minorHeight = riverData[i].minor;var moderateHeight = riverData[i].moderate;var majorHeight = riverData[i].major;var recordHeight = riverData[i].record.height;
   for (var j=0; j<riverData[i].notableCrests.length;j++){
    var height = riverData[i].notableCrests[j].height;
    var notable0 = { showlegend:false, x: [88], y:[height], mode: 'text', text: [height], legendgroup:'notable',hoverinfo:"none"}; 
@@ -161,11 +157,11 @@
    },
    annotations: [
    {
-   /* xref: 'paper',
-    yref: 'paper', */
-    xref: 'x',
-    yref: 'paper',
-    x: 100,
+    xref: 'paper',
+    yref: 'paper', 
+   // xref: 'x',
+   // yref: 'paper',
+    x: 1,
     xanchor: 'left',
     y: 1,
     textangle:0,
@@ -189,29 +185,6 @@
    
   Plotly.newPlot(tester, data, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
  }
-
-
- function makeBoxTest(point,pointName,id){
-  var req = new XMLHttpRequest();
-  var reqLink = "https://water.weather.gov/ahps2/hydrograph_to_xml.php?output=xml&gage="+id;
-  req.open('GET',reqLink,true);
-  req.addEventListener('load', function(){
-   if (req.status == 200){
-    parser = new DOMParser();
-    xmlDoc = parser.parseFromString(req.responseText, "text/xml");
-   
-    //var myOut = xmlDoc.getElementsByTagName("observed")[0];
-    //var myOut2 = myOut.getElementsByTagName("datum")[0];
-    var myOut2 = (xmlDoc.querySelector("observed datum primary")).textContent;
-    
-    console.log(myOut2);
-   }
-   else
-    console.log("got an error");
-  });
-  req.send();
- }
-
 
 
 
