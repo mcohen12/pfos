@@ -85,43 +85,29 @@
   };
   var action = {
    showlegend: false,
-   x: [0, 98], y: [actionHeight,actionHeight], mode: 'lines+text', text: ['Action ('+actionHeight+' ft)'],
-   textposition: 'top right',hoverinfo:"none",
+   x: [-10000, 10000], y: [actionHeight,actionHeight], mode: 'lines', 
    line: {
-    color: 'rgb(158,191,57)',
-    width: 2
+    color: 'rgb(158,191,57)'
    }
   };
   var minor = {
    showlegend: false,
-   x: [0,98],
+   x: [-10000,10000],
    y: [minorHeight,minorHeight],
-   mode: 'lines+text',
-   text: ['Minor ('+minorHeight+' ft)'],
-   textposition: 'top right',hoverinfo:"none",
+   mode: 'lines',
    line: {
-    color: 'rgb(237,176,7)'
+    color: 'rgb(237,176,7)', width: 2
    }
   };
   var moderate = {
-   showlegend: false,
-   x: [0, 98],
-   y: [moderateHeight,moderateHeight],
-   mode: 'lines+text',
-   text: ['Moderate ('+moderateHeight+' ft)'],hoverinfo:"none",
-   textposition: 'top right',
-   line: {
-    color: 'rgb(237,53,17)',
-    width: 2
-   }
+   showlegend: false, x: [-10000, 10000], y: [moderateHeight,moderateHeight],mode: 'lines',
+   line: { color: 'rgb(237,53,17)', width: 2}
   };
   var major = {
    showlegend: false,
-   x: [0, 98],
-   y: [majorHeight,majorHeight],hoverinfo:"none",
-   mode: 'lines+text',
-   text: ['Major ('+majorHeight+' ft)'],
-   textposition: 'top right',
+   x: [-10000,10000],
+   y: [majorHeight,majorHeight],
+   mode: 'lines',
    line: {
     color: 'rgb(179,57,219)',
     width: 2
@@ -155,6 +141,10 @@
     showticklabels: false,
     range: [0,100]
    },
+   xaxis2: {
+    showgrid: true,
+    range: [0,1]
+   },
    annotations: [
    {
     xref: 'paper',
@@ -179,6 +169,14 @@
     yanchor: 'middle',
     text: 'River Level: '+observedHeight+' ft as of __ need to get day and convert from UTC ',
     showarrow: false,hoverinfo:"none"
+   },
+   {xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Action ('+actionHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)'
+   },
+   {xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Minor ('+minorHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)'
+   },
+   {xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Moderate ('+moderateHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)'
+   },
+   {xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Major ('+majorHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)'
    }
    ]
   };
