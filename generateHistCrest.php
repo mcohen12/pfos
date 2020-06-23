@@ -16,7 +16,7 @@ function get_data($url){
 }
 
 $wfo = "fgf";
-$gages = ['DRTN8','EGFM5','FGON8','HILN8','HICN8'];
+$gages = ['DRTN8','EGFM5','FGON8','HILN8','HICN8','CLXM5','HNDM5'];
 foreach($gages as $gage){
  $url = 'https://water.weather.gov/ahps2/crests.php?wfo='.$wfo.'&gage='.$gage.'&crest_type=historic';
  $content = get_data($url);
