@@ -28,7 +28,7 @@
     for (var i=0;i<json.length;i++)
      histCrests[i] = json[i].properties;
     
-   console.log("hello... hist crests..."+histCrests[0].historicCrests[0].height);
+   //console.log("hello... hist crests..."+histCrests[0].historicCrests[0].height);
    // console.log("hello... hist crests..."+histCrests.DRTN8.historicCrests[0]);
    }
    else
@@ -55,19 +55,20 @@ document.addEventListener("DOMContentLoaded", preLoad);
     var minorHeight = parseInt(sigStages.querySelector("flood").textContent);
     var moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
     var majorHeight = parseInt(sigStages.querySelector("major").textContent);
-    var recordHeight = parseInt(sigStages.querySelector("record").textContent);
+    //var recordHeight = parseInt(sigStages.querySelector("record").textContent);
     var observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
     
-    console.log("recordHeight is "+recordHeight);
+//    console.log("recordHeight is "+recordHeight);
     console.log("observed is "+observed);
-    makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,recordHeight,observed);
+    //makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,recordHeight,observed);
+    makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed);
    }
    else
     console.log("got an error");
   });
   req.send();
  }
- function makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,recordHeight,observedHeight){
+ function makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight){
 
   tester = document.getElementById('highContainer');
   var i=0;
@@ -89,22 +90,35 @@ document.addEventListener("DOMContentLoaded", preLoad);
    data.push(exceed0,exceed1,exceed2);
   }
   
-  for (var j=0; j<riverData[i].notableCrests.length;j++){
-   var height = riverData[i].notableCrests[j].height;
+ // for (var j=0; j<riverData[i].notableCrests.length;j++){
+ var k=0; var found=false;
+ while(k<histCrests.length && !found){
+  if ((histCrests[k].gage).toUpperCase() == pointID.toUpperCase())
+   found=true;
+  k++;
+ }
+   /*var height = riverData[i].notableCrests[j].height;
    var notable0 = { showlegend:false, x: [88], y:[height], mode: 'text', text: [height], legendgroup:'notable',hoverinfo:"none"}; 
+   var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} }; */
+//need exception handling for this stuff
+ var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
+
+ for(var i=1;i<histCrests[k].historicCrests.length;i++){
+  var height = Number(histCrests[k].historicCrests[i].height); var day = histCrests[k].historicCrests[i].day;
+  var notable0 = { showlegend:false, x: [88], y:[height], mode: 'text', text: [height], legendgroup:'notable',hoverinfo:"none"}; 
    var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} };
    //make legend visible for one
-   if (j==0){
+   if (i==1){
     notable1.showlegend = true;
     notable1.name = "Notable Crests";
    }
-   var notable2 = { showlegend:false, x: [93], y:[height], mode: 'text', text: [riverData[i].notableCrests[j].year],legendgroup:'notable',hoverinfo:"none", textposition:'right' };
+   var notable2 = { showlegend:false, x: [93], y:[height], mode: 'text', text: day,legendgroup:'notable',hoverinfo:"none", textposition:'right' };
    data.push(notable0, notable1, notable2);
   // data.push(notable0);
   }
   var record = {
    showlegend: false,
-   x: [0, 98], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+riverData[i].record.year], textposition: 'top right',hoverinfo:"none",
+   x: [0, 98], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+ recordDay], textposition: 'top right',hoverinfo:"none",
    line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'
    }
   };
