@@ -16,6 +16,31 @@
   <script src ="data.js"></script>
 
 <script>
+ var histCrests=[];
+ function preLoad(){
+  var req = new XMLHttpRequest();
+  req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
+  req.addEventListener('load',function(){
+   if(req.status >= 200 && req.status < 400){
+    console.log("hello it worked");
+    var json = (JSON.parse(req.responseText)).features;
+    console.log("json length is "+json.length);
+    for (var i=0;i<json.length;i++)
+     histCrests[i] = json[i].properties;
+    
+   console.log("hello... hist crests..."+histCrests[0].historicCrests[0].height);
+   // console.log("hello... hist crests..."+histCrests.DRTN8.historicCrests[0]);
+   }
+   else
+    console.log("had an error");
+  });
+  req.send();
+ }
+
+document.addEventListener("DOMContentLoaded", preLoad);
+ 
+  //  for (obj in json){
+//console.log(json.features[0].properties.gage
 
  function makeBox(point,pointName,pointID){
   var req = new XMLHttpRequest();
