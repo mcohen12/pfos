@@ -2,7 +2,7 @@
 
 <?php
 
-//just testing out git username change
+//This better still be working
 
 function get_data($url){
  $ch = curl_init();
