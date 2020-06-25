@@ -17,6 +17,7 @@
 
 <script>
  var histCrests=[];
+ var probOfExceed=[];
  function preLoad(){
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
@@ -27,14 +28,32 @@
     console.log("json length is "+json.length);
     for (var i=0;i<json.length;i++)
      histCrests[i] = json[i].properties;
-    
-   //console.log("hello... hist crests..."+histCrests[0].historicCrests[0].height);
-   // console.log("hello... hist crests..."+histCrests.DRTN8.historicCrests[0]);
    }
    else
     console.log("had an error");
   });
   req.send();
+  var req2 = new XMLHttpRequest();
+  req2.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/quantiles_format.json',true);
+  req2.addEventListener('load',function(){
+   if(req2.status >= 200 && req.status < 400){
+    console.log("hello it worked");
+    probOfExceed = JSON.parse(req2.responseText);
+    for (var i=0;i<probOfExceed.length;i++){
+     probOfExceed[i].exceedance.sort(function(a,b){
+      if (Number(a.percent) > Number(b.percent))
+       return 1;
+      if (Number(a.percent) < Number(b.percent))
+       return -1;
+     return 0;
+     });
+    }
+   }
+   else
+    console.log("had a problem with grabbing from NCRFC");
+   
+  });
+  req2.send();
  }
 
 document.addEventListener("DOMContentLoaded", preLoad);
@@ -71,35 +90,45 @@ document.addEventListener("DOMContentLoaded", preLoad);
  function makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight){
 
   tester = document.getElementById('highContainer');
-  var i=0;
-  var id = pointID;
+//  var i=0;
+//  var id = pointID;
   //find the right river
-  while (id != riverData[i].id && i < riverData.length)
-   i++;
+ // while (id != riverData[i].id && i < riverData.length)
+  // i++;
   
   var data = [];
   
-  for (var k=0; k<percentExceed[i].exceedance.length;k++){
-   var height = percentExceed[i].exceedance[k].height;
-   var percent = percentExceed[i].exceedance[k].percent+"%";
+  //find station in probOfExceed
+  var i=0;var found=false;
+  while(i<probOfExceed.length && !found){
+   if((probOfExceed[i].id).toUpperCase() == pointID.toUpperCase())
+    found=true;
+   else
+    i++;
+  }
+  if(found){
+   for (var j=0; j<probOfExceed[i].exceedance.length;j++){
+   var height = Number(probOfExceed[i].exceedance[j].height);
+   var percent = probOfExceed[i].exceedance[j].percent+"%";
    var exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
    var exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
    var exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-   if (["5%","50%","95%"].indexOf(percent) == -1) //default to only show 5, 50, and 95%
-    exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
+   //show every other if there's more than 5
+   if (probOfExceed[i].exceedance.length > 5)
+    if (j%2 != 0 && j!= probOfExceed[i].exceedance.length -1)
+     exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
    data.push(exceed0,exceed1,exceed2);
+   }
   }
-  
+
  // for (var j=0; j<riverData[i].notableCrests.length;j++){
  var k=0; var found=false;
  while(k<histCrests.length && !found){
   if ((histCrests[k].gage).toUpperCase() == pointID.toUpperCase())
    found=true;
-  k++;
+  else
+   k++;
  }
-   /*var height = riverData[i].notableCrests[j].height;
-   var notable0 = { showlegend:false, x: [88], y:[height], mode: 'text', text: [height], legendgroup:'notable',hoverinfo:"none"}; 
-   var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} }; */
 //need exception handling for this stuff
  var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
 
