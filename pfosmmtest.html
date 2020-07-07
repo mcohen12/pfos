@@ -39,15 +39,15 @@
    if(req2.status >= 200 && req.status < 400){
     console.log("hello it worked");
     probOfExceed = JSON.parse(req2.responseText);
-    for (var i=0;i<probOfExceed.length;i++){
-     probOfExceed[i].exceedance.sort(function(a,b){
-      if (Number(a.percent) > Number(b.percent))
-       return 1;
-      if (Number(a.percent) < Number(b.percent))
-       return -1;
-     return 0;
-     });
-    }
+ //   for (var i=0;i<probOfExceed.length;i++){
+//     probOfExceed[i].exceedance.sort(function(a,b){
+ //     if (Number(a.percent) > Number(b.percent))
+  //     return 1;
+   //   if (Number(a.percent) < Number(b.percent))
+    //   return -1;
+     //return 0;
+   //  });
+   // }
    }
    else
     console.log("had a problem with grabbing from NCRFC");
@@ -76,18 +76,19 @@ document.addEventListener("DOMContentLoaded", preLoad);
     var majorHeight = parseInt(sigStages.querySelector("major").textContent);
     //var recordHeight = parseInt(sigStages.querySelector("record").textContent);
     var observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
+    var dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
     
 //    console.log("recordHeight is "+recordHeight);
     console.log("observed is "+observed);
     //makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,recordHeight,observed);
-    makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed);
+    makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
    }
    else
     console.log("got an error");
   });
   req.send();
  }
- function makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight){
+ function makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
 
   tester = document.getElementById('highContainer');
 //  var i=0;
@@ -109,13 +110,13 @@ document.addEventListener("DOMContentLoaded", preLoad);
   if(found){
    for (var j=0; j<probOfExceed[i].exceedance.length;j++){
    var height = Number(probOfExceed[i].exceedance[j].height);
-   var percent = probOfExceed[i].exceedance[j].percent+"%";
+   var percent = Number(probOfExceed[i].exceedance[j].percent);
    var exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
    var exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
    var exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
    //show every other if there's more than 5
    if (probOfExceed[i].exceedance.length > 5)
-    if (j%2 != 0 && j!= probOfExceed[i].exceedance.length -1)
+    if ([2,5,10,15,20,25].indexOf(percent) == -1)
      exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
    data.push(exceed0,exceed1,exceed2);
    }
@@ -147,7 +148,7 @@ document.addEventListener("DOMContentLoaded", preLoad);
   }
   var record = {
    showlegend: false,
-   x: [0, 98], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+ recordDay], textposition: 'top right',hoverinfo:"none",
+   x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+ recordDay], textposition: 'top right',hoverinfo:"none",
    line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'
    }
   };
@@ -228,24 +229,19 @@ document.addEventListener("DOMContentLoaded", preLoad);
     showarrow: false 
    },
    {
-    xref: 'paper',
-    yref: 'paper',
-    x: 0.2,
-    y: 0.05,
-    xanchor: 'left',
-    textangle:0,
-    yanchor: 'middle',
-    text: 'River Level: '+observedHeight+' ft as of __ need to get day and convert from UTC ',
-    showarrow: false,hoverinfo:"none"
+    xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:"none"
    },
-   {xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Action ('+actionHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)'
+   {xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Action ('+actionHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
    },
-   {xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Minor ('+minorHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)'
+   {xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
    },
-   {xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Moderate ('+moderateHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)'
+   {xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Moderate ('+moderateHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
    },
-   {xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Major ('+majorHeight+' ft)',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)'
+   {xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
+   },
+   {xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Record '+recordHeight+' ft '+ recordDay, showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: "navy", size:15, family: 'Arial, Helvetica, sans serif'}
    }
+
    ]
   };
    
