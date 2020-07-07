@@ -34,7 +34,7 @@
   });
   req.send();
   var req2 = new XMLHttpRequest();
-  req2.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/quantiles_format.json',true);
+  req2.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/CS_distributions.json',true);
   req2.addEventListener('load',function(){
    if(req2.status >= 200 && req.status < 400){
     console.log("hello it worked");
@@ -261,7 +261,12 @@ document.addEventListener("DOMContentLoaded", preLoad);
     // These control the height and width of the image and pop up box.
     // "Height" will control the height of both the image and the pop up box.
     // Make sure that "Width" and "popUpWidth" match to make it look nice.  
-    var Height      = "450";
+ /*   var Height      = "450";
+    var Width       = "450"; 
+    var popUpWidth  = "450"; 
+*/
+
+var Height = "800";
     var Width       = "450"; 
     var popUpWidth  = "450"; 
 
@@ -308,7 +313,8 @@ for (var i=0;i<riverPoints.length;i++){
 </script>
 
   <section id="graphicHome">
-   <div id="highContainer"></div>
+   <div style="height:800px;" id="highContainer"></div>
+   <!--div id="highContainer"></div-->
   </section>
   <div style="clear:both"></div> 
 
