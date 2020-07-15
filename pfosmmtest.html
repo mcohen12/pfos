@@ -13,9 +13,18 @@
  <body>
   <h1 align="center">Use the map below to view forecast point PFOS Graphics</h1>
   <div align="center" id="mapid" style="width: 100%; height: 500px;">&nbsp;</div>
-  <script src ="data.js"></script>
+  <!--script src ="data.js"></script -->
 
 <script>
+   var riverPoints = [{id:"drtn8",latLon:[48.572480,-97.148],name:"Red River at Drayton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=drtn8&graph_id=2"},
+    {id:"egfm5",latLon:[47.933307,-97.037085],name:"Red River at East Grand Forks",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=egfm5&graph_id=2"},
+    {id:"fgon8",latLon:[46.861725,-96.783593],name:"Red River at Fargo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=fgon8&graph_id=2"},
+    {id:"hiln8",latLon:[47.352608,-96.844130],name:"Red River at Halsted",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hiln8&graph_id=2"},
+    {id:"hicn8",latLon:[46.659278,-96.797085],name:"Red River at Hickson",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hicn8&graph_id=2"},
+    {id:"clxm5",latLon:[47.611944,-96.814444],name:"Sand Hill River at Climax",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=clxm5&graph_id=2"},
+    {id:"hndm5",latLon:[47.268056,-96.797222],name:"Wild Rice River (MN) at Hendrum",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hndm5&graph_id=2"}
+   ];
+    
  var histCrests=[];
  var probOfExceedFS=[];
  function preLoad(){
@@ -104,13 +113,25 @@ document.addEventListener("DOMContentLoaded", preLoad);
   
   var data = [];
   //find station in probOfExceed
-  //var  
-
-
-
-
+  let i=0; let found=false;
+  while(i<probOfExceed.length && !found){
+   if((probOfExceed[i].id).toUpperCase() == pointID.toUpperCase())
+    found=true;
+   else
+    i++;
+  }
+  if(found){
+   for(let j=0;j<probOfExceed[i].exceedance.length;j++){
+    let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
+    let percent = Number(probOfExceed[i].exceedance[j].percent);
+    let exceed0 = { showlegend: false, x: [44], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
+    let exceed2 = { showlegend: false, x: [51], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    data.push(exceed0,exceed1,exceed2);
+   }
+  }
   //find station in probOfExceedFS
-  let i=0;let found=false;
+  i=0;found=false;
   while(i<probOfExceedFS.length && !found){
    if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
     found=true;
@@ -118,16 +139,16 @@ document.addEventListener("DOMContentLoaded", preLoad);
     i++;
   }
   if(found){
-   for (let j=0; j<probOfExceedFS[i].exceedance.length;j++){
-   let height = Number(probOfExceedFS[i].exceedance[j].height);
-   let percent = Number(probOfExceedFS[i].exceedance[j].percent);
-   let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-   let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
-   let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+   for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
+    let height = Number(probOfExceedFS[i].exceedance[j].height);
+    let percent = Number(probOfExceedFS[i].exceedance[j].percent);
+    let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
+    let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
    //show every other if there's more than 5
-   if (probOfExceedFS[i].exceedance.length > 5)
-    if ([2,5,10,15,20,25].indexOf(percent) == -1)
-     exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
+   // if (probOfExceedFS[i].exceedance.length > 5)
+  //   if (i%7 != 0)//if ([2,5,10,15,20,25].indexOf(percent) == -1)
+   // exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
    data.push(exceed0,exceed1,exceed2);
    }
   }
