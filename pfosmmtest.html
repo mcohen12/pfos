@@ -115,9 +115,13 @@
   }
  }
  
- function setProbOfExceedFS(pointID){
- let i=0; let found=false;
- let dataFS = [];
+ function setProbOfExceedFS(pointID,x0=null,x1=null){
+  let i=0; let found=false;
+  let dataFS = [];
+  if(x0)
+   console.log("x0 is "+x0);
+  if(x1)
+   console.log("x1 is "+x1);
   while(i<probOfExceedFS.length && !found){
    if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
     found=true;
@@ -131,11 +135,39 @@
     let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
     let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
     let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-   //show every other if there's more than 5
-   // if (probOfExceedFS[i].exceedance.length > 5)
-  //   if (i%7 != 0)//if ([2,5,10,15,20,25].indexOf(percent) == -1)
-   // exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
-   dataFS.push(exceed0,exceed1,exceed2);
+    if (!(x0 || x1)){
+     if (j%7 == 0)
+      dataFS.push(exceed0,exceed1,exceed2);
+    }
+    else{
+     if (x1-x0 > 70){
+      if (j%7 == 0)
+       dataFS.push(exceed0,exceed1,exceed2);
+     }
+     else if (x1-x0 > 60){
+      if (j%6 == 0)
+       dataFS.push(exceed0,exceed1,exceed2);
+     }
+     else if (x1-x0 > 50){
+      if (j%5 == 0)
+       dataFS.push(exceed0,exceed1,exceed2);
+     }
+     else if (x1-x0 > 40){
+      if (j%4 == 0)
+       dataFS.push(exceed0,exceed1,exceed2);
+     }
+     else if (x1-x0 > 30){
+      if (j%3 == 0)
+       dataFS.push(exceed0,exceed1,exceed2);
+     }
+     else if (x1-x0 > 20){
+      if (j%2 == 0)
+       dataFS.push(exceed0,exceed1,exceed2);
+     }
+     else{
+       dataFS.push(exceed0,exceed1,exceed2);
+     }
+    }
    }
   }
   return dataFS;
@@ -274,18 +306,17 @@
   makeGraph(tester,layout,pointID);
  }
 
- function makeGraph(target,layout,pointID){
+ function makeGraph(target,layout,pointID,x0=null,x1=null){
   console.log("calling MakeGraph");
-  let dataFS = setProbOfExceedFS(pointID) 
+  let dataFS = setProbOfExceedFS(pointID,x0,x1) 
   let finalData = data.concat(dataFS);
    
   Plotly.newPlot(target, finalData, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
 
  target.on('plotly_relayout',
-  function(){
-   
-   alert( 'ZOOM\n\n');
-   makeGraph(target,layout,pointID);
+  function(eventdata){
+   let x0=parseInt(eventdata['xaxis.range[0]']); let x1 = parseInt(eventdata['xaxis.range[1]']);
+   makeGraph(target,layout,pointID,x0,x1);
    
   });
  }
