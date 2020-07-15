@@ -26,6 +26,7 @@
    ];
     
  var histCrests=[];
+ var probOfExceed=[];
  var probOfExceedFS=[];
  function preLoad(){
   var req = new XMLHttpRequest();
@@ -94,23 +95,16 @@ document.addEventListener("DOMContentLoaded", preLoad);
     
 //    console.log("recordHeight is "+recordHeight);
     console.log("observed is "+observed);
-    //makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,recordHeight,observed);
-    makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
+    setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
    }
    else
     console.log("got an error");
   });
   req.send();
  }
- function makeGraph(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
+ function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
 
   tester = document.getElementById('highContainer');
-//  var i=0;
-//  var id = pointID;
-  //find the right river
- // while (id != riverData[i].id && i < riverData.length)
-  // i++;
-  
   var data = [];
   //find station in probOfExceed
   let i=0; let found=false;
@@ -277,6 +271,11 @@ document.addEventListener("DOMContentLoaded", preLoad);
   };
    
   Plotly.newPlot(tester, data, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
+
+ tester.on('plotly_relayout',
+  function(){
+   alert( 'ZOOM\n\n');
+  });
  }
 
 
