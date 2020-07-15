@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", preLoad);
 
 
   //find station in probOfExceedFS
-  var i=0;var found=false;
+  let i=0;let found=false;
   while(i<probOfExceedFS.length && !found){
    if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
     found=true;
@@ -118,12 +118,12 @@ document.addEventListener("DOMContentLoaded", preLoad);
     i++;
   }
   if(found){
-   for (var j=0; j<probOfExceedFS[i].exceedance.length;j++){
-   var height = Number(probOfExceedFS[i].exceedance[j].height);
-   var percent = Number(probOfExceedFS[i].exceedance[j].percent);
-   var exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-   var exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
-   var exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+   for (let j=0; j<probOfExceedFS[i].exceedance.length;j++){
+   let height = Number(probOfExceedFS[i].exceedance[j].height);
+   let percent = Number(probOfExceedFS[i].exceedance[j].percent);
+   let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+   let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
+   let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
    //show every other if there's more than 5
    if (probOfExceedFS[i].exceedance.length > 5)
     if ([2,5,10,15,20,25].indexOf(percent) == -1)
@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", preLoad);
   }
 
  // for (var j=0; j<riverData[i].notableCrests.length;j++){
- var k=0; var found=false;
+ let k=0; found=false;
  while(k<histCrests.length && !found){
   if ((histCrests[k].gage).toUpperCase() == pointID.toUpperCase())
    found=true;
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", preLoad);
 //need exception handling for this stuff
  var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
 
- for(var i=1;i<histCrests[k].historicCrests.length;i++){
+ for(i=1;i<histCrests[k].historicCrests.length;i++){
   var height = Number(histCrests[k].historicCrests[i].height); var day = histCrests[k].historicCrests[i].day;
   var notable0 = { showlegend:false, x: [88], y:[height], mode: 'text', text: [height], legendgroup:'notable',hoverinfo:"none"}; 
    var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} };
