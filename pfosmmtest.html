@@ -17,7 +17,7 @@
 
 <script>
  var histCrests=[];
- var probOfExceed=[];
+ var probOfExceedFS=[];
  function preLoad(){
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
@@ -36,25 +36,30 @@
   var req2 = new XMLHttpRequest();
   req2.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/CS_distributions.json',true);
   req2.addEventListener('load',function(){
-   if(req2.status >= 200 && req.status < 400){
+   if(req2.status >= 200 && req2.status < 400){
     console.log("hello it worked");
-    probOfExceed = JSON.parse(req2.responseText);
- //   for (var i=0;i<probOfExceed.length;i++){
-//     probOfExceed[i].exceedance.sort(function(a,b){
- //     if (Number(a.percent) > Number(b.percent))
-  //     return 1;
-   //   if (Number(a.percent) < Number(b.percent))
-    //   return -1;
-     //return 0;
-   //  });
-   // }
+    probOfExceedFS = JSON.parse(req2.responseText);
    }
    else
     console.log("had a problem with grabbing from NCRFC");
-   
   });
   req2.send();
+ 
+  var req3 = new XMLHttpRequest();
+  req3.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/CS_percentiles.json',true);
+  req3.addEventListener('load',function(){
+   if(req3.status >= 200 && req3.status < 400){
+    console.log("got the percentiles");
+    probOfExceed = JSON.parse(req3.responseText);
+   }
+   else
+    console.log("had problem grabbing percentiles");
+  });
+  req3.send();
  }
+
+   
+  
 
 document.addEventListener("DOMContentLoaded", preLoad);
  
@@ -98,24 +103,29 @@ document.addEventListener("DOMContentLoaded", preLoad);
   // i++;
   
   var data = [];
-  
   //find station in probOfExceed
+  //var  
+
+
+
+
+  //find station in probOfExceedFS
   var i=0;var found=false;
-  while(i<probOfExceed.length && !found){
-   if((probOfExceed[i].id).toUpperCase() == pointID.toUpperCase())
+  while(i<probOfExceedFS.length && !found){
+   if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
     found=true;
    else
     i++;
   }
   if(found){
-   for (var j=0; j<probOfExceed[i].exceedance.length;j++){
-   var height = Number(probOfExceed[i].exceedance[j].height);
-   var percent = Number(probOfExceed[i].exceedance[j].percent);
+   for (var j=0; j<probOfExceedFS[i].exceedance.length;j++){
+   var height = Number(probOfExceedFS[i].exceedance[j].height);
+   var percent = Number(probOfExceedFS[i].exceedance[j].percent);
    var exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
    var exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
    var exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
    //show every other if there's more than 5
-   if (probOfExceed[i].exceedance.length > 5)
+   if (probOfExceedFS[i].exceedance.length > 5)
     if ([2,5,10,15,20,25].indexOf(percent) == -1)
      exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
    data.push(exceed0,exceed1,exceed2);
