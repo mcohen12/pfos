@@ -13,7 +13,6 @@
  <body>
   <h1 align="center">Use the map below to view forecast point PFOS Graphics</h1>
   <div align="center" id="mapid" style="width: 100%; height: 500px;">&nbsp;</div>
-  <!--script src ="data.js"></script -->
 
 <script>
    var riverPoints = [{id:"drtn8",latLon:[48.572480,-97.148],name:"Red River at Drayton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=drtn8&graph_id=2"},
@@ -28,6 +27,8 @@
  var histCrests=[];
  var probOfExceed=[];
  var probOfExceedFS=[];
+ var data=[];
+ var layout;
  function preLoad(){
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
@@ -68,13 +69,7 @@
   req3.send();
  }
 
-   
-  
-
-document.addEventListener("DOMContentLoaded", preLoad);
- 
-  //  for (obj in json){
-//console.log(json.features[0].properties.gage
+ document.addEventListener("DOMContentLoaded", preLoad);
 
  function makeBox(point,pointName,pointID){
   var req = new XMLHttpRequest();
@@ -89,11 +84,8 @@ document.addEventListener("DOMContentLoaded", preLoad);
     var minorHeight = parseInt(sigStages.querySelector("flood").textContent);
     var moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
     var majorHeight = parseInt(sigStages.querySelector("major").textContent);
-    //var recordHeight = parseInt(sigStages.querySelector("record").textContent);
     var observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
     var dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
-    
-//    console.log("recordHeight is "+recordHeight);
     console.log("observed is "+observed);
     setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
    }
@@ -102,11 +94,8 @@ document.addEventListener("DOMContentLoaded", preLoad);
   });
   req.send();
  }
- function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
 
-  tester = document.getElementById('highContainer');
-  var data = [];
-  //find station in probOfExceed
+ function setProbOfExceed(pointID){
   let i=0; let found=false;
   while(i<probOfExceed.length && !found){
    if((probOfExceed[i].id).toUpperCase() == pointID.toUpperCase())
@@ -124,8 +113,11 @@ document.addEventListener("DOMContentLoaded", preLoad);
     data.push(exceed0,exceed1,exceed2);
    }
   }
-  //find station in probOfExceedFS
-  i=0;found=false;
+ }
+ 
+ function setProbOfExceedFS(pointID){
+ let i=0; let found=false;
+ let dataFS = [];
   while(i<probOfExceedFS.length && !found){
    if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
     found=true;
@@ -143,18 +135,28 @@ document.addEventListener("DOMContentLoaded", preLoad);
    // if (probOfExceedFS[i].exceedance.length > 5)
   //   if (i%7 != 0)//if ([2,5,10,15,20,25].indexOf(percent) == -1)
    // exceed0.visible = exceed1.visible = exceed2.visible = "legendonly";
-   data.push(exceed0,exceed1,exceed2);
+   dataFS.push(exceed0,exceed1,exceed2);
    }
   }
+  return dataFS;
+ }
+
+ function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
+  data = [];
+  tester = document.getElementById('highContainer');
+  //find station in probOfExceed
+  
+  setProbOfExceed(pointID);
+  let dataFS = setProbOfExceedFS(pointID);
 
  // for (var j=0; j<riverData[i].notableCrests.length;j++){
- let k=0; found=false;
- while(k<histCrests.length && !found){
-  if ((histCrests[k].gage).toUpperCase() == pointID.toUpperCase())
-   found=true;
-  else
-   k++;
- }
+  let k=0; found=false;
+  while(k<histCrests.length && !found){
+   if ((histCrests[k].gage).toUpperCase() == pointID.toUpperCase())
+    found=true;
+   else
+    k++;
+  }
 //need exception handling for this stuff
  var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
 
@@ -208,7 +210,7 @@ document.addEventListener("DOMContentLoaded", preLoad);
    }
   };
   data.push(action,minor,moderate,major,record);
-  var layout = {
+   layout = {
    title: '2020 Spring Flood Outlook for '+pointName,
    //showlegend: true, 
    traceorder: 'grouped',
@@ -269,12 +271,22 @@ document.addEventListener("DOMContentLoaded", preLoad);
 
    ]
   };
-   
-  Plotly.newPlot(tester, data, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
+  makeGraph(tester,layout,pointID);
+ }
 
- tester.on('plotly_relayout',
+ function makeGraph(target,layout,pointID){
+  console.log("calling MakeGraph");
+  let dataFS = setProbOfExceedFS(pointID) 
+  let finalData = data.concat(dataFS);
+   
+  Plotly.newPlot(target, finalData, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
+
+ target.on('plotly_relayout',
   function(){
+   
    alert( 'ZOOM\n\n');
+   makeGraph(target,layout,pointID);
+   
   });
  }
 
