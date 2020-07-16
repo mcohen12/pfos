@@ -77,13 +77,13 @@
    if (req.status == 200){
     parser = new DOMParser();
     xmlDoc = parser.parseFromString(req.responseText, "text/xml");
-    var sigStages = xmlDoc.querySelector("sigstages");
-    var actionHeight = parseInt(sigStages.querySelector("action").textContent);
-    var minorHeight = parseInt(sigStages.querySelector("flood").textContent);
-    var moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
-    var majorHeight = parseInt(sigStages.querySelector("major").textContent);
-    var observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
-    var dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
+    let sigStages = xmlDoc.querySelector("sigstages");
+    let actionHeight = parseInt(sigStages.querySelector("action").textContent);
+    let minorHeight = parseInt(sigStages.querySelector("flood").textContent);
+    let moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
+    let majorHeight = parseInt(sigStages.querySelector("major").textContent);
+    let observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
+    let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
     console.log("observed is "+observed);
     setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
    }
@@ -106,12 +106,10 @@
    for(let j=0;j<probOfExceed[i].exceedance.length;j++){
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
     let percent = Number(probOfExceed[i].exceedance[j].percent);
-    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines+text', text: [percent+"% "+height+"ft"], textposition:'top right',hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
+    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'black',size:12,family: 'Arial,Helvetica, sans serif'}};
     data.push(exceed0);
-   // let exceed0 = { showlegend: false, x: [44], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-    //let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
-   // let exceed2 = { showlegend: false, x: [51], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-    //data.push(exceed0,exceed1,exceed2);
+    defaultAnnotations.push(newAnnotation);
    }
   }
  }
@@ -132,10 +130,6 @@
     let percent = Number(probOfExceedFS[i].exceedance[j].percent);
     let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
     let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'black',size:12,family: 'Arial,Helvetica, sans serif'}};
-    //let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-    //let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
-    //let exceed1 = { showlegend: false, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)', width: 2},hoverinfo:"none"};
-    //let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
     if (!(x0 || x1)){
      if (j%7 == 0){
       extraAnnotations.push(newAnnotation);
@@ -191,13 +185,12 @@
 
  function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
   data = [];
+  defaultAnnotations = [];
   tester = document.getElementById('highContainer');
   //find station in probOfExceed
   
-  setProbOfExceed(pointID);
-//  let dataFS = setProbOfExceedFS(pointID);
+  //setProbOfExceed(pointID);
 
- // for (var j=0; j<riverData[i].notableCrests.length;j++){
   let k=0; found=false;
   while(k<histCrests.length && !found){
    if ((histCrests[k].gage).toUpperCase() == pointID.toUpperCase())
@@ -223,29 +216,34 @@
   }
   var record = {
    showlegend: false,
-   //x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+ recordDay], textposition: 'top right',hoverinfo:"none",
    x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'linest', hoverinfo:"none",
    line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'}
   };
+  defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Record '+recordHeight+' ft '+ recordDay, showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: "navy", size:15, family: 'Arial, Helvetica, sans serif'}
+   });
   var action = {
    showlegend: false,
    x: [-10000, 10000], y: [actionHeight,actionHeight], mode: 'lines', 
    line: { color: 'rgb(158,191,57)'}
   };
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Action ('+actionHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   var minor = {
    showlegend: false,
    x: [-10000,10000], y: [minorHeight,minorHeight], mode: 'lines',
    line: { color: 'rgb(237,176,7)', width: 2}
   };
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   var moderate = {
    showlegend: false, x: [-10000, 10000], y: [moderateHeight,moderateHeight],mode: 'lines',
    line: { color: 'rgb(237,53,17)', width: 2}
   };
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Moderate ('+moderateHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   var major = {
    showlegend: false,
    x: [-10000,10000], y: [majorHeight,majorHeight], mode: 'lines',
    line: { color: 'rgb(179,57,219)',width: 2}
   };
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   data.push(action,minor,moderate,major,record);
   layout = {
   title: '2020 Spring Flood Outlook for '+pointName,
@@ -255,23 +253,12 @@
    xaxis: { showgrid: false, showline: true, linecolor: 'black', linewidth: 2, mirror: true, showticklabels: false,range: [0,100] },
    xaxis2: { showgrid: true, range: [0,1] },
    legend: {bgcolor: '#E2E2E2',bordercolor:'black',borderwidth:2}};
-   defaultAnnotations = [
+   defaultAnnotations.push(
    { xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 1, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false },
    { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:"none" },
-   {xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Action ('+actionHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
-   },
-   {xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
-   },
-   {xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Moderate ('+moderateHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
-   },
-   {xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
-   },
-   {xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Record '+recordHeight+' ft '+ recordDay, showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: "navy", size:15, family: 'Arial, Helvetica, sans serif'}
-   }
+   );
 
-   ];
-   //layout.annotations = defaultAnnotations;
-  
+   setProbOfExceed(pointID);
   makeGraph(tester,layout,pointID);
  }
 
