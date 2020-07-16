@@ -28,7 +28,9 @@
  var probOfExceed=[];
  var probOfExceedFS=[];
  var data=[];
- var layout;
+ var layout; 
+ var defaultAnnotations = []; // holds default annotations e.g., action height 
+ var extraAnnotations=[]; //for adding annotations for POEs
  function preLoad(){
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
@@ -104,10 +106,12 @@
    for(let j=0;j<probOfExceed[i].exceedance.length;j++){
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
     let percent = Number(probOfExceed[i].exceedance[j].percent);
-    let exceed0 = { showlegend: false, x: [44], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-    let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
-    let exceed2 = { showlegend: false, x: [51], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-    data.push(exceed0,exceed1,exceed2);
+    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines+text', text: [percent+"% "+height+"ft"], textposition:'top right',hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
+    data.push(exceed0);
+   // let exceed0 = { showlegend: false, x: [44], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    //let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
+   // let exceed2 = { showlegend: false, x: [51], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    //data.push(exceed0,exceed1,exceed2);
    }
   }
  }
@@ -116,10 +120,6 @@
  function setProbOfExceedFS(pointID,x0=null,x1=null){
   let i=0; let found=false;
   let dataFS = [];
-  if(x0)
-   console.log("x0 is "+x0);
-  if(x1)
-   console.log("x1 is "+x1);
   while(i<probOfExceedFS.length && !found){
    if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
     found=true;
@@ -130,41 +130,58 @@
    for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
     let height = Number(probOfExceedFS[i].exceedance[j].height);
     let percent = Number(probOfExceedFS[i].exceedance[j].percent);
-    let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'black',size:12,family: 'Arial,Helvetica, sans serif'}};
+    //let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
     //let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
-    let exceed1 = { showlegend: false, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)', width: 2},hoverinfo:"none"};
-    let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    //let exceed1 = { showlegend: false, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)', width: 2},hoverinfo:"none"};
+    //let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
     if (!(x0 || x1)){
-     if (j%7 == 0)
-      dataFS.push(exceed0,exceed1,exceed2);
+     if (j%7 == 0){
+      extraAnnotations.push(newAnnotation);
+      dataFS.push(exceed0);
+     }
     }
     else{
      if (x1-x0 > 70){
-      if (j%7 == 0)
-       dataFS.push(exceed0,exceed1,exceed2);
+      if (j%7 == 0){
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
+      }
      }
      else if (x1-x0 > 60){
-      if (j%6 == 0)
-       dataFS.push(exceed0,exceed1,exceed2);
+      if (j%6 == 0){
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
+      }
      }
      else if (x1-x0 > 50){
-      if (j%5 == 0)
-       dataFS.push(exceed0,exceed1,exceed2);
+      if (j%5 == 0){
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
+      }
      }
      else if (x1-x0 > 40){
-      if (j%4 == 0)
-       dataFS.push(exceed0,exceed1,exceed2);
+      if (j%4 == 0){
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
+      }
      }
      else if (x1-x0 > 30){
-      if (j%3 == 0)
-       dataFS.push(exceed0,exceed1,exceed2);
+      if (j%3 == 0){
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
+      }
      }
      else if (x1-x0 > 20){
-      if (j%2 == 0)
-       dataFS.push(exceed0,exceed1,exceed2);
+      if (j%2 == 0){
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
+      }
      }
      else{
-       dataFS.push(exceed0,exceed1,exceed2);
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
      }
     }
    }
@@ -178,7 +195,7 @@
   //find station in probOfExceed
   
   setProbOfExceed(pointID);
-  let dataFS = setProbOfExceedFS(pointID);
+//  let dataFS = setProbOfExceedFS(pointID);
 
  // for (var j=0; j<riverData[i].notableCrests.length;j++){
   let k=0; found=false;
@@ -206,7 +223,8 @@
   }
   var record = {
    showlegend: false,
-   x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+ recordDay], textposition: 'top right',hoverinfo:"none",
+   //x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+ recordDay], textposition: 'top right',hoverinfo:"none",
+   x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'linest', hoverinfo:"none",
    line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'}
   };
   var action = {
@@ -236,24 +254,10 @@
    yaxis: { range: [actionHeight-10,recordHeight+10], title: 'River Stage (ft)', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, tickfont: { family: 'Arial', size: 14} },
    xaxis: { showgrid: false, showline: true, linecolor: 'black', linewidth: 2, mirror: true, showticklabels: false,range: [0,100] },
    xaxis2: { showgrid: true, range: [0,1] },
-   legend: {bgcolor: '#E2E2E2',bordercolor:'black',borderwidth:2},
-   annotations: [
-   {
-    xref: 'paper',
-    yref: 'paper', 
-   // xref: 'x',
-   // yref: 'paper',
-    x: 1,
-    xanchor: 'left',
-    y: 1,
-    textangle:0,
-    yanchor: 'middle',
-    text: 'Probability of Exceedence',
-    showarrow: false 
-   },
-   {
-    xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:"none"
-   },
+   legend: {bgcolor: '#E2E2E2',bordercolor:'black',borderwidth:2}};
+   defaultAnnotations = [
+   { xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 1, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false },
+   { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:"none" },
    {xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Action ('+actionHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
    },
    {xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}
@@ -265,15 +269,19 @@
    {xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Record '+recordHeight+' ft '+ recordDay, showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: "navy", size:15, family: 'Arial, Helvetica, sans serif'}
    }
 
-   ]
-  };
+   ];
+   //layout.annotations = defaultAnnotations;
+  
   makeGraph(tester,layout,pointID);
  }
 
  function makeGraph(target,layout,pointID,x0=null,x1=null){
   console.log("calling MakeGraph");
-  let dataFS = setProbOfExceedFS(pointID,x0,x1) 
+  extraAnnotations = [];
+  let dataFS = setProbOfExceedFS(pointID,x0,x1);
   let finalData = data.concat(dataFS);
+  let annotations = defaultAnnotations.concat(extraAnnotations);
+  layout.annotations = annotations;
    
   Plotly.newPlot(target, finalData, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
 
@@ -284,10 +292,6 @@
    
   });
  }
-
-
-
-
     var mymap = L.map('mapid').setView([47.925, -97.032], 7);
 
 
@@ -303,7 +307,6 @@ var Height = "800";
     var Width       = "450"; 
     var popUpWidth  = "450"; 
 
-
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 18,
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
@@ -312,24 +315,9 @@ var Height = "800";
         id: 'mapbox.streets'
     }).addTo(mymap);
     
-
-
     // PFOS Image Sources - note, must be uploaded to the CMS server!
-
-
-
-
-
-
     // Markers and pop up windows. 
-
-
-
-
-
     // Red River
- 
-
 for (var i=0;i<riverPoints.length;i++){
  
  let name=riverPoints[i].name;
@@ -338,10 +326,6 @@ for (var i=0;i<riverPoints.length;i++){
     color:'black',
  }).on('click',function(e){makeBox(e,name,id);}).addTo(mymap);
 } 
-
-
- 
-
 
 </script>
 
