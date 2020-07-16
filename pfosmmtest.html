@@ -110,8 +110,9 @@
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
     let percent = Number(probOfExceed[i].exceedance[j].percent);
     defaultPOE.push({'percent':percent,'height':height});
-    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'navy'}};
+    //let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'----------'+percent+'% '+height+'ft----------',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     data.push(exceed0);
     defaultAnnotations.push(newAnnotation);
    }
@@ -133,8 +134,8 @@
    for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
     let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
     let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
-    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'orange'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'----------'+percent+'% '+height+'ft----------',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
      prev=height;
      continue;
