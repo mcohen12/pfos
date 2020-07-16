@@ -31,6 +31,8 @@
  var layout; 
  var defaultAnnotations = []; // holds default annotations e.g., action height 
  var extraAnnotations=[]; //for adding annotations for POEs
+ var actionHeight; //global for use in poeFS function
+ var defaultPOE=[];
  function preLoad(){
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
@@ -78,7 +80,7 @@
     parser = new DOMParser();
     xmlDoc = parser.parseFromString(req.responseText, "text/xml");
     let sigStages = xmlDoc.querySelector("sigstages");
-    let actionHeight = parseInt(sigStages.querySelector("action").textContent);
+    actionHeight = parseInt(sigStages.querySelector("action").textContent);
     let minorHeight = parseInt(sigStages.querySelector("flood").textContent);
     let moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
     let majorHeight = parseInt(sigStages.querySelector("major").textContent);
@@ -95,6 +97,7 @@
 
  /* format data for POEs for a point */
  function setProbOfExceed(pointID){
+  defaultPOE = [];
   let i=0; let found=false;
   while(i<probOfExceed.length && !found){
    if((probOfExceed[i].id).toUpperCase() == pointID.toUpperCase())
@@ -106,8 +109,9 @@
    for(let j=0;j<probOfExceed[i].exceedance.length;j++){
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
     let percent = Number(probOfExceed[i].exceedance[j].percent);
+    defaultPOE.push({'percent':percent,'height':height});
     let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'black',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     data.push(exceed0);
     defaultAnnotations.push(newAnnotation);
    }
@@ -125,57 +129,98 @@
     i++;
   }
   if(found){
+   let prev = -9999;
    for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
-    let height = Number(probOfExceedFS[i].exceedance[j].height);
-    let percent = Number(probOfExceedFS[i].exceedance[j].percent);
+    let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
+    let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
     let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:1, color: 'navy'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'black',size:12,family: 'Arial,Helvetica, sans serif'}};
-    if (!(x0 || x1)){
-     if (j%7 == 0){
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
+     prev=height;
+     continue;
+    }
+    if (x0 || x1){
+     if (x1 - x0 < 20){
+      console.log("this is zoomed all the way in");
       extraAnnotations.push(newAnnotation);
       dataFS.push(exceed0);
+      prev = height;
+      continue;
+     }
+    }
+    if (percent > 80 ) //we already get 90% from the standard POE
+     break;
+    let redundant = false;let k=0;
+    while (!redundant && k<defaultPOE.length){
+     if (Math.abs(defaultPOE[k].height - height) < 1 || Math.abs(defaultPOE[k].percent - percent) < 2)
+      redundant = true;
+     k++;
+    }
+    if(redundant)
+     continue;
+    if (percent > 70 || height < actionHeight){ //only do every 10th FS POE for the levels that really don't matter
+     if (j%10 == 0){
+      extraAnnotations.push(newAnnotation);
+      dataFS.push(exceed0);  
+      prev = height;
      }
     }
     else{
-     if (x1-x0 > 70){
+     if (!(x0 || x1)){
       if (j%7 == 0){
        extraAnnotations.push(newAnnotation);
        dataFS.push(exceed0);
+       prev = height;
       }
      }
-     else if (x1-x0 > 60){
-      if (j%6 == 0){
-       extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+     else{ if (x1-x0 > 70){
+       if (j%7 == 0){
+        extraAnnotations.push(newAnnotation);
+        dataFS.push(exceed0);
+        prev = height;
+       }
       }
-     }
-     else if (x1-x0 > 50){
-      if (j%5 == 0){
-       extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+      else if (x1-x0 > 60){
+       if (j%6 == 0){
+        extraAnnotations.push(newAnnotation);
+        dataFS.push(exceed0);
+        prev = height;
+       }
       }
-     }
-     else if (x1-x0 > 40){
-      if (j%4 == 0){
-       extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+      else if (x1-x0 > 50){
+       if (j%5 == 0){
+        extraAnnotations.push(newAnnotation);
+        dataFS.push(exceed0);
+        prev = height;
+       }
       }
-     }
-     else if (x1-x0 > 30){
-      if (j%3 == 0){
-       extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+      else if (x1-x0 > 40){
+       if (j%4 == 0){
+        extraAnnotations.push(newAnnotation);
+        dataFS.push(exceed0);
+        prev = height;
+       }
       }
-     }
-     else if (x1-x0 > 20){
-      if (j%2 == 0){
-       extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+      else if (x1-x0 > 30){
+       if (j%3 == 0){
+        extraAnnotations.push(newAnnotation);
+        dataFS.push(exceed0);
+        prev = height;
+       }
       }
-     }
-     else{
-       extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+      else if (x1-x0 > 20){
+       if (j%2 == 0){
+        extraAnnotations.push(newAnnotation);
+        dataFS.push(exceed0);
+        prev = height;
+       }
+      }
+ //prob want to put this above so you get everything all the way zoomed in
+      else{
+        extraAnnotations.push(newAnnotation);
+        dataFS.push(exceed0);
+        prev = height;
+      }
      }
     }
    }
@@ -216,10 +261,9 @@
   }
   var record = {
    showlegend: false,
-   x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'linest', hoverinfo:"none",
-   line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'}
+   x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'linest', hoverinfo:"none", line: {width: 2, color: 'rgb(0,0,0)'}
   };
-  defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: 'Record '+recordHeight+' ft '+ recordDay, showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: "navy", size:15, family: 'Arial, Helvetica, sans serif'}
+  defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Record '+recordHeight+' ft '+ recordDay+'</b>', showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: 'black', size:15, family: 'Arial, Helvetica, sans serif'},
    });
   var action = {
    showlegend: false,
