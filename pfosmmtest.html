@@ -34,9 +34,7 @@
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
   req.addEventListener('load',function(){
    if(req.status >= 200 && req.status < 400){
-    console.log("hello it worked");
     var json = (JSON.parse(req.responseText)).features;
-    console.log("json length is "+json.length);
     for (var i=0;i<json.length;i++)
      histCrests[i] = json[i].properties;
    }
@@ -48,7 +46,6 @@
   req2.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/CS_distributions.json',true);
   req2.addEventListener('load',function(){
    if(req2.status >= 200 && req2.status < 400){
-    console.log("hello it worked");
     probOfExceedFS = JSON.parse(req2.responseText);
    }
    else
@@ -60,7 +57,6 @@
   req3.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/CS_percentiles.json',true);
   req3.addEventListener('load',function(){
    if(req3.status >= 200 && req3.status < 400){
-    console.log("got the percentiles");
     probOfExceed = JSON.parse(req3.responseText);
    }
    else
@@ -95,6 +91,7 @@
   req.send();
  }
 
+ /* format data for POEs for a point */
  function setProbOfExceed(pointID){
   let i=0; let found=false;
   while(i<probOfExceed.length && !found){
@@ -115,6 +112,7 @@
   }
  }
  
+ /* format data for full spectrum POEs for a point */
  function setProbOfExceedFS(pointID,x0=null,x1=null){
   let i=0; let found=false;
   let dataFS = [];
@@ -133,8 +131,9 @@
     let height = Number(probOfExceedFS[i].exceedance[j].height);
     let percent = Number(probOfExceedFS[i].exceedance[j].percent);
     let exceed0 = { showlegend: false, x: [45], y: [height], mode: 'text', text: [height], legendgroup: 'exceed'+percent,hoverinfo:"none"};
-    let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
-    let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent], legendgroup: 'exceed'+percent,hoverinfo:"none"};
+    //let exceed1 = { showlegend: true, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)'}, legendgroup: 'exceed'+percent, name: percent,hoverinfo:"none"};
+    let exceed1 = { showlegend: false, x: [46,49], y: [height,height], mode: 'lines', line:{color:'rgb(34,23,77)', width: 2},hoverinfo:"none"};
+    let exceed2 = { showlegend: false, x: [50], y: [height], mode: 'text', text: [percent+"%"], legendgroup: 'exceed'+percent,hoverinfo:"none"};
     if (!(x0 || x1)){
      if (j%7 == 0)
       dataFS.push(exceed0,exceed1,exceed2);
@@ -208,24 +207,17 @@
   var record = {
    showlegend: false,
    x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'lines+text', text: ['Record '+recordHeight+' ft '+ recordDay], textposition: 'top right',hoverinfo:"none",
-   line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'
-   }
+   line: { dash: 'dot', width: 2, color: 'rgb(0,0,0)'}
   };
   var action = {
    showlegend: false,
    x: [-10000, 10000], y: [actionHeight,actionHeight], mode: 'lines', 
-   line: {
-    color: 'rgb(158,191,57)'
-   }
+   line: { color: 'rgb(158,191,57)'}
   };
   var minor = {
    showlegend: false,
-   x: [-10000,10000],
-   y: [minorHeight,minorHeight],
-   mode: 'lines',
-   line: {
-    color: 'rgb(237,176,7)', width: 2
-   }
+   x: [-10000,10000], y: [minorHeight,minorHeight], mode: 'lines',
+   line: { color: 'rgb(237,176,7)', width: 2}
   };
   var moderate = {
    showlegend: false, x: [-10000, 10000], y: [moderateHeight,moderateHeight],mode: 'lines',
@@ -233,46 +225,18 @@
   };
   var major = {
    showlegend: false,
-   x: [-10000,10000],
-   y: [majorHeight,majorHeight],
-   mode: 'lines',
-   line: {
-    color: 'rgb(179,57,219)',
-    width: 2
-   }
+   x: [-10000,10000], y: [majorHeight,majorHeight], mode: 'lines',
+   line: { color: 'rgb(179,57,219)',width: 2}
   };
   data.push(action,minor,moderate,major,record);
-   layout = {
-   title: '2020 Spring Flood Outlook for '+pointName,
-   //showlegend: true, 
-   traceorder: 'grouped',
-   dragmode: 'pan',
+  layout = {
+  title: '2020 Spring Flood Outlook for '+pointName,
+   traceorder: 'grouped', dragmode: 'pan',
    margin: { l: 50, r:100 },
-   yaxis: {
-    range: [actionHeight-10,recordHeight+10],
-    title: 'River Stage (ft)',
-    ticks: 'outside',
-    linecolor: 'black',
-    linewidth: 2,
-    mirror: true,
-    tickfont: {
-     family: 'Arial',
-     size: 14
-    }
-   },
-   xaxis: {
-    showgrid: false,
-    showline: true,
-    linecolor: 'black',
-    linewidth: 2,
-    mirror: true,
-    showticklabels: false,
-    range: [0,100]
-   },
-   xaxis2: {
-    showgrid: true,
-    range: [0,1]
-   },
+   yaxis: { range: [actionHeight-10,recordHeight+10], title: 'River Stage (ft)', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, tickfont: { family: 'Arial', size: 14} },
+   xaxis: { showgrid: false, showline: true, linecolor: 'black', linewidth: 2, mirror: true, showticklabels: false,range: [0,100] },
+   xaxis2: { showgrid: true, range: [0,1] },
+   legend: {bgcolor: '#E2E2E2',bordercolor:'black',borderwidth:2},
    annotations: [
    {
     xref: 'paper',
