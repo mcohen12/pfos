@@ -111,10 +111,9 @@
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
     let percent = Number(probOfExceed[i].exceedance[j].percent);
     defaultPOE.push({'percent':percent,'height':height});
-    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'navy'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     if (height != prev){
-     data.push(exceed0);
+   //  data.push(exceed0);
      defaultAnnotations.push(newAnnotation);
     }
     prev=height;
@@ -133,14 +132,12 @@
     i++;
   }
   if(found){
-  // alert("look a symbol! \u2660");
    let prev = -9999;
    for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
     let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
     let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
     //can get rid of all the exceed0 stuff
-    let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'orange'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
      prev=height;
      continue;
@@ -158,7 +155,7 @@
        if(redundant)
         continue;
        extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+      // dataFS.push(exceed0);
        prev = height;
        continue;
       }
@@ -177,7 +174,7 @@
     if (percent > 70 || height < actionHeight){ //only do every 10th FS POE for the levels that really don't matter
      if (j%10 == 0){
       extraAnnotations.push(newAnnotation);
-      dataFS.push(exceed0);  
+    //  dataFS.push(exceed0);  
       prev = height;
      }
     }
@@ -185,56 +182,56 @@
      if (!(x0 || x1)){
       if (j%7 == 0){
        extraAnnotations.push(newAnnotation);
-       dataFS.push(exceed0);
+       //dataFS.push(exceed0);
        prev = height;
       }
      }
      else{ if (x1-x0 > 70){
        if (j%7 == 0){
         extraAnnotations.push(newAnnotation);
-        dataFS.push(exceed0);
+        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 60){
        if (j%6 == 0){
         extraAnnotations.push(newAnnotation);
-        dataFS.push(exceed0);
+        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 50){
        if (j%5 == 0){
         extraAnnotations.push(newAnnotation);
-        dataFS.push(exceed0);
+        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 40){
        if (j%4 == 0){
         extraAnnotations.push(newAnnotation);
-        dataFS.push(exceed0);
+        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 30){
        if (j%3 == 0){
         extraAnnotations.push(newAnnotation);
-        dataFS.push(exceed0);
+        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 20){
        if (j%2 == 0){
         extraAnnotations.push(newAnnotation);
-        dataFS.push(exceed0);
+        //dataFS.push(exceed0);
         prev = height;
        }
       }
  //prob want to put this above so you get everything all the way zoomed in
       else{
         extraAnnotations.push(newAnnotation);
-        dataFS.push(exceed0);
+        //dataFS.push(exceed0);
         prev = height;
       }
      }
@@ -263,63 +260,72 @@
  var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
 
  for(i=1;i<histCrests[k].historicCrests.length;i++){
-  var height = Number(histCrests[k].historicCrests[i].height); var day = histCrests[k].historicCrests[i].day;
-  var notable0 = { showlegend:false, x: [88], y:[height], mode: 'text', text: [height], legendgroup:'notable',hoverinfo:"none"}; 
-   var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} };
+  var height = Number(histCrests[k].historicCrests[i].height); var day = new Date(histCrests[k].historicCrests[i].day);
+  //var notable0 = { showlegend:false, x: [.88], y:[height], mode: 'text', text: [height+"ft \u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
+  //var notable0 = { showlegend:false, x: [1], y:[height], mode: 'text', text: ["\u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
+  var notable0 = { showlegend:false, x: [1], y:[height], mode: 'text', text: ["\u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
+   //var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} };
    //make legend visible for one
-   if (i==1){
-    notable1.showlegend = true;
-    notable1.name = "Notable Crests";
-   }
-   var notable2 = { showlegend:false, x: [93], y:[height], mode: 'text', text: day,legendgroup:'notable',hoverinfo:"none", textposition:'right' };
-   data.push(notable0, notable1, notable2);
-  // data.push(notable0);
+   //if (i==1){
+  //  notable1.showlegend = true;
+   // notable1.name = "Notable Crests";
+   //}
+   //var notable2 = { showlegend:false, x: [93], y:[height], mode: 'text', text: day,legendgroup:'notable',hoverinfo:"none", textposition:'right' };
+   //data.push(notable0, notable1, notable2);
+   data.push(notable0);
   }
   var record = {
    showlegend: false,
-   x: [-10000, 10000], y: [recordHeight,recordHeight], mode: 'linest', hoverinfo:"none", line: {width: 2, color: 'rgb(0,0,0)'}
+   x: [0, 1], y: [recordHeight,recordHeight], mode: 'lines', hoverinfo:"none", line: {width: 1, color: 'rgb(0,0,0)'}
   };
   defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Record '+recordHeight+' ft '+ recordDay+'</b>', showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: 'black', size:15, family: 'Arial, Helvetica, sans serif'},
    });
   var action = {
-   showlegend: false,
-   x: [-10000, 10000], y: [actionHeight,actionHeight], mode: 'lines', 
+   showlegend: false,hoverinfo:'none',
+   x: [0, 1], y: [actionHeight,actionHeight], mode: 'lines', 
    line: { color: 'rgb(158,191,57)'}
   };
   defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Action ('+actionHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   var minor = {
-   showlegend: false,
-   x: [-10000,10000], y: [minorHeight,minorHeight], mode: 'lines',
+   showlegend: false,hoverinfo:'none',
+   x: [0,1], y: [minorHeight,minorHeight], mode: 'lines',
    line: { color: 'rgb(237,176,7)', width: 2}
   };
   defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   var moderate = {
-   showlegend: false, x: [-10000, 10000], y: [moderateHeight,moderateHeight],mode: 'lines',
+   showlegend: false, hoverinfo:'none',
+ x: [0, 1], y: [moderateHeight,moderateHeight],mode: 'lines',
    line: { color: 'rgb(237,53,17)', width: 2}
   };
   defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Moderate ('+moderateHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   var major = {
-   showlegend: false,
-   x: [-10000,10000], y: [majorHeight,majorHeight], mode: 'lines',
+   showlegend: false,hoverinfo:'none',
+   x: [0,1], y: [majorHeight,majorHeight], mode: 'lines',
    line: { color: 'rgb(179,57,219)',width: 1}
   };
   defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   data.push(action,minor,moderate,major,record);
+  
+  //figure out y ranges
   layout = {
   title: '2020 Spring Flood Outlook for '+pointName,
    traceorder: 'grouped', dragmode: 'pan',
-   margin: { l: 50, r:100 },
-   yaxis: { range: [actionHeight-10,recordHeight+10], title: 'River Stage (ft)', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, tickfont: { family: 'Arial', size: 14} },
-   xaxis: { showgrid: false, showline: true, linecolor: 'black', linewidth: 2, mirror: true, showticklabels: false,range: [0,100] },
-   xaxis2: { showgrid: true, range: [0,1] },
+   margin: { l: 50, r:50 },
+   yaxis: {range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))], title: 'River Stage (ft)', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, tickfont: { family: 'Arial', size: 14} },
+   xaxis: {fixedrange:true, showgrid: false, showline: true, linecolor: 'black', linewidth: 2, mirror: true, showticklabels: false,range: [0,1] },
+   //xaxis2: { showgrid: true, range: [0,1] },
    legend: {bgcolor: '#E2E2E2',bordercolor:'black',borderwidth:2}};
    defaultAnnotations.push(
-   { xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 1, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false },
+   //{ xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 1, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false },
    { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:"none" },
    );
 
    setProbOfExceed(pointID);
   makeGraph(tester,layout,pointID);
+ }
+ 
+ function hello(){
+  alert("Hellooooooo");
  }
 
  function makeGraph(target,layout,pointID,x0=null,x1=null){
@@ -328,6 +334,8 @@
   let dataFS = setProbOfExceedFS(pointID,x0,x1);
   let finalData = data.concat(dataFS);
   let annotations = defaultAnnotations.concat(extraAnnotations);
+  //let annotations = [ { xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 0.5, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false } ];
+ // annotations[0].addEventListener('click',hello);
   layout.annotations = annotations;
    
   Plotly.newPlot(target, finalData, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
@@ -337,6 +345,12 @@
    let x0=parseInt(eventdata['xaxis.range[0]']); let x1 = parseInt(eventdata['xaxis.range[1]']);
    makeGraph(target,layout,pointID,x0,x1);
    
+  });
+ target.on('plotly_click',
+  function(eventdata){
+   console.log('click registered');
+  // let mydata = JSON.parse(eventdata);
+   //alert('eventdata is '+mydata);
   });
  }
     var mymap = L.map('mapid').setView([47.925, -97.032], 7);
