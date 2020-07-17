@@ -11,7 +11,7 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> 
  </head>
  <body>
-  <h1 align="center">Use the map below to view forecast point PFOS Graphics</h1>
+  <h1 align="center">Use the map below to view forecast point PFOS Graphics&#8364;</h1>
   <div align="center" id="mapid" style="width: 100%; height: 500px;">&nbsp;</div>
 
 <script>
@@ -112,8 +112,7 @@
     let percent = Number(probOfExceed[i].exceedance[j].percent);
     defaultPOE.push({'percent':percent,'height':height});
     let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'navy'}};
-    //let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft----------'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     if (height != prev){
      data.push(exceed0);
      defaultAnnotations.push(newAnnotation);
@@ -134,12 +133,14 @@
     i++;
   }
   if(found){
+  // alert("look a symbol! \u2660");
    let prev = -9999;
    for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
     let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
     let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
+    //can get rid of all the exceed0 stuff
     let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'orange'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft----------'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
      prev=height;
      continue;
@@ -300,7 +301,7 @@
   var major = {
    showlegend: false,
    x: [-10000,10000], y: [majorHeight,majorHeight], mode: 'lines',
-   line: { color: 'rgb(179,57,219)',width: 2}
+   line: { color: 'rgb(179,57,219)',width: 1}
   };
   defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
   data.push(action,minor,moderate,major,record);
