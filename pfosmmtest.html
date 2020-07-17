@@ -105,6 +105,7 @@
    else
     i++;
   }
+  let prev = -9999;
   if(found){
    for(let j=0;j<probOfExceed[i].exceedance.length;j++){
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
@@ -112,9 +113,12 @@
     defaultPOE.push({'percent':percent,'height':height});
     let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'navy'}};
     //let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,xanchor:'left',textangle:0,yanchor:'middle',text:percent+'% '+height+'ft',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'----------'+percent+'% '+height+'ft----------',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
-    data.push(exceed0);
-    defaultAnnotations.push(newAnnotation);
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft----------'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    if (height != prev){
+     data.push(exceed0);
+     defaultAnnotations.push(newAnnotation);
+    }
+    prev=height;
    }
   }
  }
@@ -135,7 +139,7 @@
     let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
     let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
     let exceed0 = { showlegend: false, x: [-10000,10000], y: [height, height], mode: 'lines', hoverinfo:'none',line: {dash:'dot',width:0, color: 'orange'}};
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'----------'+percent+'% '+height+'ft----------',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:height+'ft----------'+percent+'% ',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
     if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
      prev=height;
      continue;
@@ -143,10 +147,20 @@
     if (x0 || x1){
      if (x1 - x0 < 20){
       console.log("this is zoomed all the way in");
-      extraAnnotations.push(newAnnotation);
-      dataFS.push(exceed0);
-      prev = height;
-      continue;
+      if (height != prev){
+       let redundant = false; let k=0;
+       while(!redundant && k<defaultPOE.length){
+        if (defaultPOE[k].height == height || defaultPOE[k].percent == percent)
+         redundant = true;
+        k++;
+       }
+       if(redundant)
+        continue;
+       extraAnnotations.push(newAnnotation);
+       dataFS.push(exceed0);
+       prev = height;
+       continue;
+      }
      }
     }
     if (percent > 80 ) //we already get 90% from the standard POE
