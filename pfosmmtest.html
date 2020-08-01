@@ -111,7 +111,7 @@
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
     let percent = Number(probOfExceed[i].exceedance[j].percent);
     defaultPOE.push({'percent':percent,'height':height});
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
     if (height != prev){
    //  data.push(exceed0);
      defaultAnnotations.push(newAnnotation);
@@ -137,7 +137,7 @@
     let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
     let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
     //can get rid of all the exceed0 stuff
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:12,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
     if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
      prev=height;
      continue;
@@ -276,34 +276,34 @@
   }
   var record = {
    showlegend: false,
-   x: [0, 1], y: [recordHeight,recordHeight], mode: 'lines', hoverinfo:"none", line: {width: 1, color: 'rgb(0,0,0)'}
+   x: [0, 1], y: [recordHeight,recordHeight], mode: 'lines', hoverinfo:"none", line: {width: 1, dash: 'dot', color: 'rgb(0,0,0)'}
   };
   defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Record '+recordHeight+' ft '+ recordDay+'</b>', showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: 'black', size:15, family: 'Arial, Helvetica, sans serif'},
    });
   var action = {
    showlegend: false,hoverinfo:'none',
    x: [0, 1], y: [actionHeight,actionHeight], mode: 'lines', 
-   line: { color: 'rgb(158,191,57)'}
+   line: { color: 'rgb(158,191,57)', width: 1}
   };
-  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Action ('+actionHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: actionHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Action ('+actionHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(158,191,57)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
   var minor = {
    showlegend: false,hoverinfo:'none',
    x: [0,1], y: [minorHeight,minorHeight], mode: 'lines',
-   line: { color: 'rgb(237,176,7)', width: 2}
+   line: { color: 'rgb(237,176,7)', width: 1}
   };
-  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
   var moderate = {
    showlegend: false, hoverinfo:'none',
  x: [0, 1], y: [moderateHeight,moderateHeight],mode: 'lines',
-   line: { color: 'rgb(237,53,17)', width: 2}
+   line: { color: 'rgb(237,53,17)', width: 1}
   };
-  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Moderate ('+moderateHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: moderateHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Moderate ('+moderateHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,53,17)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
   var major = {
    showlegend: false,hoverinfo:'none',
    x: [0,1], y: [majorHeight,majorHeight], mode: 'lines',
    line: { color: 'rgb(179,57,219)',width: 1}
   };
-  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:17, family: 'Arial,Helvetica,sans serif'}});
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
   data.push(action,minor,moderate,major,record);
   
   //figure out y ranges
