@@ -33,6 +33,7 @@
  var extraAnnotations=[]; //for adding annotations for POEs
  var actionHeight; //global for use in poeFS function
  var defaultPOE=[];
+ var histCrestAnnotations=[];
  function preLoad(){
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
@@ -95,6 +96,29 @@
   req.send();
  }
 
+ function setHistoricCrests(pointID){
+  histCrestAnnotations=[];
+  let i=0; let found=false;
+  while(i<histCrests.length && !found){
+   if((histCrests[i].gage).toUpperCase() == pointID.toUpperCase())
+    found=true;
+   else
+    i++;
+  }
+  if(found){
+   for(let j=0;j<histCrests[i].historicCrests.length;j++){
+    let height=Number(histCrests[i].historicCrests[j].height);
+    let year = Number((histCrests[i].historicCrests[j].day).slice(-4));
+    //separate annotation for the line so it goes to the y axis...?
+    let newAnnotation1 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>\u02D7</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+    let newAnnotation2 = {xref: 'paper',yref:'y',x:1,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>'+year+'</b>',showarrow:false,hoverinfo:'none',textposition:'top left', font: {color:'black',size:15,family: 'Arial,Helvetica,sans serif',weight:900}};
+    histCrestAnnotations.push(newAnnotation1);
+    histCrestAnnotations.push(newAnnotation2);
+   } 
+  }
+ }
+    
+  
  /* format data for POEs for a point */
  function setProbOfExceed(pointID){
   defaultPOE = [];
@@ -111,7 +135,7 @@
     let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
     let percent = Number(probOfExceed[i].exceedance[j].percent);
     defaultPOE.push({'percent':percent,'height':height});
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
     if (height != prev){
    //  data.push(exceed0);
      defaultAnnotations.push(newAnnotation);
@@ -123,8 +147,11 @@
  
  /* format data for full spectrum POEs for a point */
  function setProbOfExceedFS(pointID,x0=null,x1=null){
+  console.log("calling setprobofExceedFS");
+  console.log("x0 is "+x0+" and x1 is "+x1);
   let i=0; let found=false;
   let dataFS = [];
+  //find the right station
   while(i<probOfExceedFS.length && !found){
    if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
     found=true;
@@ -132,17 +159,19 @@
     i++;
   }
   if(found){
+   console.log("found it");
    let prev = -9999;
    for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
     let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
     let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
     //can get rid of all the exceed0 stuff
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+'ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
     if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
      prev=height;
      continue;
     }
     if (x0 || x1){
+     console.log("in so far...x0 is "+x0+" and x1 is "+x1);
      if (x1 - x0 < 20){
       console.log("this is zoomed all the way in");
       if (height != prev){
@@ -258,12 +287,14 @@
   }
 //need exception handling for this stuff
  var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
+ setHistoricCrests(pointID);
+  
 
- for(i=1;i<histCrests[k].historicCrests.length;i++){
-  var height = Number(histCrests[k].historicCrests[i].height); var day = new Date(histCrests[k].historicCrests[i].day);
-  //var notable0 = { showlegend:false, x: [.88], y:[height], mode: 'text', text: [height+"ft \u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
+// for(i=1;i<histCrests[k].historicCrests.length;i++){
+//  var height = Number(histCrests[k].historicCrests[i].height); var day = new Date(histCrests[k].historicCrests[i].day);
+ // var notable0 = { showlegend:false, x: [.88], y:[height], mode: 'text', text: [height+" ft \u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
   //var notable0 = { showlegend:false, x: [1], y:[height], mode: 'text', text: ["\u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
-  var notable0 = { showlegend:false, x: [1], y:[height], mode: 'text', text: ["\u268A"], legendgroup:'notable',hoverinfo:"none"}; 
+  //var notable0 = { showlegend:false, x: [1], y:[height], mode: 'text', text: ["\u268A"], legendgroup:'notable',hoverinfo:"none"}; 
    //var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} };
    //make legend visible for one
    //if (i==1){
@@ -272,8 +303,8 @@
    //}
    //var notable2 = { showlegend:false, x: [93], y:[height], mode: 'text', text: day,legendgroup:'notable',hoverinfo:"none", textposition:'right' };
    //data.push(notable0, notable1, notable2);
-   data.push(notable0);
-  }
+  // data.push(notable0);
+  //}
   var record = {
    showlegend: false,
    x: [0, 1], y: [recordHeight,recordHeight], mode: 'lines', hoverinfo:"none", line: {width: 1, dash: 'dot', color: 'rgb(0,0,0)'}
@@ -322,7 +353,7 @@
    defaultAnnotations.push(
    //{ xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 1, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false },
    { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' },
-   { xref: 'paper',yref:'paper',x:1,y:0.5, xanchor: 'left',yanchor:'middle',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
+   { xref: 'paper',yref:'paper',x:1.05,y:0.5, xanchor: 'left',yanchor:'middle',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
    );
   
 
@@ -340,6 +371,7 @@
   let dataFS = setProbOfExceedFS(pointID,x0,x1);
   let finalData = data.concat(dataFS);
   let annotations = defaultAnnotations.concat(extraAnnotations);
+  annotations = annotations.concat(histCrestAnnotations);
   //let annotations = [ { xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 0.5, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false } ];
  // annotations[0].addEventListener('click',hello);
   layout.annotations = annotations;
@@ -349,7 +381,9 @@
  target.on('plotly_relayout',
   function(eventdata){
    let x0=parseInt(eventdata['xaxis.range[0]']); let x1 = parseInt(eventdata['xaxis.range[1]']);
-   makeGraph(target,layout,pointID,x0,x1);
+   let y0=parseInt(eventdata['yaxis.range[0]']); let y1 = parseInt(eventdata['yaxis.range[1]']);
+   //makeGraph(target,layout,pointID,x0,x1);
+   makeGraph(target,layout,pointID,y0,y1);
    
   });
  target.on('plotly_click',
