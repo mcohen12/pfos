@@ -15,14 +15,31 @@
   <div align="center" id="mapid" style="width: 100%; height: 500px;">&nbsp;</div>
 
 <script>
-   var riverPoints = [{id:"drtn8",latLon:[48.572480,-97.148],name:"Red River at Drayton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=drtn8&graph_id=2"},
+  /* var riverPoints = [{id:"drtn8",latLon:[48.572480,-97.148],name:"Red River at Drayton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=drtn8&graph_id=2"},
     {id:"egfm5",latLon:[47.933307,-97.037085],name:"Red River at East Grand Forks",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=egfm5&graph_id=2"},
     {id:"fgon8",latLon:[46.861725,-96.783593],name:"Red River at Fargo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=fgon8&graph_id=2"},
     {id:"hiln8",latLon:[47.352608,-96.844130],name:"Red River at Halsted",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hiln8&graph_id=2"},
     {id:"hicn8",latLon:[46.659278,-96.797085],name:"Red River at Hickson",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hicn8&graph_id=2"},
     {id:"clxm5",latLon:[47.611944,-96.814444],name:"Sand Hill River at Climax",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=clxm5&graph_id=2"},
     {id:"hndm5",latLon:[47.268056,-96.797222],name:"Wild Rice River (MN) at Hendrum",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hndm5&graph_id=2"}
-   ];
+   ]; */
+ var riverPoints = [
+  {id:"drtn8",latLon:[48.572480,-97.148],name:"Red River at Drayton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=drtn8&graph_id=2"},
+  {id:"egfm5",latLon:[47.933307,-97.037085],name:"Red River at East Grand Forks",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=egfm5&graph_id=2"},
+  {id:"fgon8",latLon:[46.861725,-96.783593],name:"Red River at Fargo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=fgon8&graph_id=2"},
+  {id:"hiln8",latLon:[47.352608,-96.844130],name:"Red River at Halsted",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hiln8&graph_id=2"},
+  {id:"hicn8",latLon:[46.659278,-96.797085],name:"Red River at Hickson",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hicn8&graph_id=2"},
+  {id:"oslm5",latLon:[48.194306, -97.140552],name:"Red River of the North at Oslo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=oslm5&graph_id=2"},
+  {id:"pbnn8",latLon:[48.973777, -97.238253],name:"Red River of the North at Pembina",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=pbnn8&graph_id=2"},
+  {id:"whnn8",latLon:[46.265759, -96.589358],name:"Red River of the North at Wahpeton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=whnn8&graph_id=2"},
+  {id:"higm5",latLon:[48.05, -95.81],name:"Red Lake River at High Landing",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=higm5&graph_id=2"},
+  {id:"crkm5",latLon:[47.77, -96.61],name:"Red Lake River at Crookston",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=crkm5&graph_id=2"},
+  {id:"mklm5",latLon:[48.20, -96.71],name:"Snake River at Warren 3ENE-Morkassel Brdg",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=mklm5&graph_id=2"},
+  {id:"alvm5",latLon:[48.19, -97.00],name:"Snake River at Alvarado",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=alvm5&graph_id=2"}
+
+];
+ 
+  
     
  var histCrests=[];
  var probOfExceed=[];
