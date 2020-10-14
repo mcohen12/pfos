@@ -9,59 +9,14 @@
   <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js" integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q==" crossorigin=""></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> 
+  <script src="data.js"></script> 
  </head>
  <body>
   <h1 align="center">Use the map below to view forecast point PFOS Graphics</h1>
   <div align="center" id="mapid" style="width: 100%; height: 500px;">&nbsp;</div>
 
 <script>
-  /* var riverPoints = [{id:"drtn8",latLon:[48.572480,-97.148],name:"Red River at Drayton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=drtn8&graph_id=2"},
-    {id:"egfm5",latLon:[47.933307,-97.037085],name:"Red River at East Grand Forks",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=egfm5&graph_id=2"},
-    {id:"fgon8",latLon:[46.861725,-96.783593],name:"Red River at Fargo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=fgon8&graph_id=2"},
-    {id:"hiln8",latLon:[47.352608,-96.844130],name:"Red River at Halsted",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hiln8&graph_id=2"},
-    {id:"hicn8",latLon:[46.659278,-96.797085],name:"Red River at Hickson",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hicn8&graph_id=2"},
-    {id:"clxm5",latLon:[47.611944,-96.814444],name:"Sand Hill River at Climax",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=clxm5&graph_id=2"},
-    {id:"hndm5",latLon:[47.268056,-96.797222],name:"Wild Rice River (MN) at Hendrum",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hndm5&graph_id=2"}
-   ]; */
- var riverPoints = [
-  {id:"drtn8",latLon:[48.572480,-97.148],name:"Red River at Drayton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=drtn8&graph_id=2"},
-  {id:"egfm5",latLon:[47.933307,-97.037085],name:"Red River at East Grand Forks",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=egfm5&graph_id=2"},
-  {id:"fgon8",latLon:[46.861725,-96.783593],name:"Red River at Fargo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=fgon8&graph_id=2"},
-  {id:"hiln8",latLon:[47.352608,-96.844130],name:"Red River at Halsted",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hiln8&graph_id=2"},
-  {id:"hicn8",latLon:[46.659278,-96.797085],name:"Red River at Hickson",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hicn8&graph_id=2"},
-  {id:"oslm5",latLon:[48.194306, -97.140552],name:"Red River of the North at Oslo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=oslm5&graph_id=2"},
-  {id:"pbnn8",latLon:[48.973777, -97.238253],name:"Red River of the North at Pembina",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=pbnn8&graph_id=2"},
-  {id:"whnn8",latLon:[46.265759, -96.589358],name:"Red River of the North at Wahpeton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=whnn8&graph_id=2"},
-  {id:"higm5",latLon:[48.05, -95.81],name:"Red Lake River at High Landing",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=higm5&graph_id=2"},
-  {id:"crkm5",latLon:[47.77, -96.61],name:"Red Lake River at Crookston",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=crkm5&graph_id=2"},
-  {id:"mklm5",latLon:[48.20, -96.71],name:"Snake River at Warren 3ENE-Morkassel Brdg",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=mklm5&graph_id=2"},
-  {id:"alvm5",latLon:[48.19, -97.00],name:"Snake River at Alvarado",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=alvm5&graph_id=2"},
-  {id:"hlln8",latLon:[48.77, -96.93],name:"Two Rivers at Hallock",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hlln8&graph_id=2"},
-  {id:"clxm5",latLon:[47.60, -96.81],name:"Sandhill River at Climax",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=clxm5&graph_id=2"},
-  {id:"twvm5",latLon:[47.26, -96.25],name:"Wild Rice River (MN) at Twin Valley",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=twvm5&graph_id=2"},
-  {id:"hndm5",latLon:[47.26, -96.80],name:"Wild Rice River (MN) at Hendrum",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hndm5&graph_id=2"},
-  {id:"hwym5",latLon:[46.85, -96.33],name:"Buffalo River (MN) at Hawley",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hwym5&graph_id=2"},
-  {id:"dilm5",latLon:[46.96, -96.66],name:"Buffalo River (MN) Near Dilworth",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=dilm5&graph_id=2"},
-  {id:"sabm5",latLon:[46.77, -96.63],name:"South Branch Buffalo River at Sabin",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=sabm5&graph_id=2"},
-  {id:"rosm5",latLon:[48.84, -95.76],name:"Roseau River at Roseau",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=rosm5&graph_id=2"},
-  {id:"shym5",latLon:[47.41, -96.76],name:"Marsh River at Shelly",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=shym5&graph_id=2"},
-  {id:"abrn8",latLon:[46.47, -96.78],name:"Wild Rice River (ND) at Abercrombie",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=abrn8&graph_id=2"},
-  {id:"vcrn8",latLon:[46.91, -98.00],name:"Sheyenne River at Valley City",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=vcrn8&graph_id=2"},
-  {id:"lbnn8",latLon:[46.45, -97.68],name:"Sheyenne River at Lisbon",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=lbnn8&graph_id=2"},
-  {id:"kndn8",latLon:[46.63, -97.00],name:"Sheyenne River at Kindred",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=kndn8&graph_id=2"},
-  {id:"wfon8",latLon:[46.89, -96.92],name:"Sheyenne River Diversion at West Fargo",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=wfon8&graph_id=2"},
-  {id:"hwdn8",latLon:[46.97, -96.89],name:"Sheyenne River at Harwood",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hwdn8&graph_id=2"},
-  {id:"endn8",latLon:[46.62, -97.57],name:"Maple River (ND) at Enderlin",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=endn8&graph_id=2"},
-  {id:"mpln8",latLon:[46.86, -97.10],name:"Maple River (ND) Near Mapleton South of I-94",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=mpln8&graph_id=2"},
-  {id:"hgrn8",latLon:[47.41, -97.06],name:"Goose River at Hillsboro",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=hgrn8&graph_id=2"},
-  {id:"mton8",latLon:[48.28, -97.37],name:"Forest River at Minto",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=mton8&graph_id=2"},
-  {id:"grnn8",latLon:[48.42, -97.41],name:"River Park at Grafton",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=grnn8&graph_id=2"},
-  {id:"wlhn8",latLon:[48.91, -97.92],name:"Pembina River at Walhalla",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=wlhn8&graph_id=2"},
-  {id:"ncen8",latLon:[48.98, -97.56],name:"Pembina River at Neche",url:"https://water.weather.gov/ahps2/probability_information.php?wfo=fgf&gage=ncen8&graph_id=2"}
-];
- 
-  
-    
+
  var histCrests=[];
  var probOfExceed=[];
  var probOfExceedFS=[];
@@ -324,8 +279,10 @@
     k++;
   }
 //need exception handling for this stuff
- var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
- setHistoricCrests(pointID);
+ if (histCrests[k].historicCrests[0].height != "null"){
+  var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
+  setHistoricCrests(pointID);
+}
   
 
 // for(i=1;i<histCrests[k].historicCrests.length;i++){
@@ -377,7 +334,7 @@
   
   //figure out y ranges
   layout = {
-  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook for '+pointName+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
+  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook for '+pointName+pointID+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
    traceorder: 'grouped', dragmode: 'pan',
    margin: { l: 50, r:50, t:150 },
    yaxis: {range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))], title: '<b>River Stage (ft)</b>', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, tickfont: { family: 'Arial', size: 14},font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'} },
