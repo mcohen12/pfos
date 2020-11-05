@@ -10,13 +10,42 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> 
   <script src="data.js"></script> 
+  <style>
+   div.modal{
+    position: fixed;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9998;
+    background-color: #000;
+    display: block;
+    filter: alpha(opacity=25); /* internet explorer */
+    -khtml-opacity: 0.25; /* khtml, old safari */
+    -moz-opacity: 0.25; /* mozilla, netscape */
+    opacity: 0.25; /* fx, safari, opera */
+ }
+/* body {
+  overflow: hidden;
+ }*/
+</style>
+ 
  </head>
  <body>
   <h1 align="center">Use the map below to view forecast point PFOS Graphics</h1>
   <div align="center" id="mapid" style="width: 100%; height: 500px;">&nbsp;</div>
+ 
+  <button onclick="shrinkMap()">Shrink map</button>
 
 <script>
 
+
+ function shrinkMap(){
+  document.getElementById("mapid").style.width = "50%";
+  document.getElementById("mapid").style.height = "250px";
+  console.log("running shrinkmap function");
+ }
  var histCrests=[];
  var probOfExceed=[];
  var probOfExceedFS=[];
@@ -28,6 +57,16 @@
  var defaultPOE=[];
  var histCrestAnnotations=[];
  function preLoad(){
+
+ document.getElementById("highContainer").addEventListener("mouseover",function(){
+  console.log("hovering over the high container");
+  document.body.style.overflow = 'hidden';
+ });
+ document.getElementById("highContainer").addEventListener("mouseout",function(){
+  console.log("mousing out of the high container");
+  document.body.style.overflow = 'visible';
+ });
+
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
   req.addEventListener('load',function(){
@@ -56,6 +95,16 @@
   req3.addEventListener('load',function(){
    if(req3.status >= 200 && req3.status < 400){
     probOfExceed = JSON.parse(req3.responseText);
+    let myId = getUrlVars()["id"];
+    if(getUrlVars()["id"]){
+     console.log("Urlvars id is "+myId);
+     for(let i=0;i<riverPoints.length;i++){
+      if((riverPoints[i].id).toLowerCase() == getUrlVars()["id"].toLowerCase()){
+       makeBox("holder",riverPoints[i].name,riverPoints[i].id);
+       break;
+      }
+     }
+    }
    }
    else
     console.log("had problem grabbing percentiles");
@@ -64,6 +113,18 @@
  }
 
  document.addEventListener("DOMContentLoaded", preLoad);
+
+ /*build this out to work for other WFOs? Just pass the WFO into the URL? */
+ function getUrlVars(){
+  var vars = [], hash;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?')+1).split('&');
+  for(let i=0; i<hashes.length;i++){
+   hash = hashes[i].split('=');
+   vars.push(hash[0]);
+   vars[hash[0]]=hash[1];
+  }
+  return vars;
+ }
 
  function makeBox(point,pointName,pointID){
   var req = new XMLHttpRequest();
@@ -103,8 +164,11 @@
     let height=Number(histCrests[i].historicCrests[j].height);
     let year = Number((histCrests[i].historicCrests[j].day).slice(-4));
     //separate annotation for the line so it goes to the y axis...?
+    
+    let newAnnotation0 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'right',text:'<b>'+height+'</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
     let newAnnotation1 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>\u02D7</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
     let newAnnotation2 = {xref: 'paper',yref:'y',x:1,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>'+year+'</b>',showarrow:false,hoverinfo:'none',textposition:'top left', font: {color:'black',size:15,family: 'Arial,Helvetica,sans serif',weight:900}};
+    histCrestAnnotations.push(newAnnotation0);
     histCrestAnnotations.push(newAnnotation1);
     histCrestAnnotations.push(newAnnotation2);
    } 
@@ -266,6 +330,10 @@
  function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
   data = [];
   defaultAnnotations = [];
+  //tester = document.createElement("div"); 
+ // tester.className = "modal";
+ // document.body.appendChild(tester);
+  
   tester = document.getElementById('highContainer');
   //find station in probOfExceed
   
@@ -348,7 +416,7 @@
    defaultAnnotations.push(
    //{ xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 1, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false },
    { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' },
-   { xref: 'paper',yref:'paper',x:1.05,y:0.5, xanchor: 'left',yanchor:'middle',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
+   { xref: 'paper',yref:'paper',x:1.01,y:0.5, xanchor: 'left',yanchor:'middle',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
    );
   
 
@@ -375,10 +443,12 @@
 
  target.on('plotly_relayout',
   function(eventdata){
+//   document.body.style.overflow = 'hidden';
    let x0=parseInt(eventdata['xaxis.range[0]']); let x1 = parseInt(eventdata['xaxis.range[1]']);
    let y0=parseInt(eventdata['yaxis.range[0]']); let y1 = parseInt(eventdata['yaxis.range[1]']);
    //makeGraph(target,layout,pointID,x0,x1);
    makeGraph(target,layout,pointID,y0,y1);
+ //  document.body.style.overflow = 'visible';
    
   });
  target.on('plotly_click',
@@ -399,9 +469,10 @@
     var popUpWidth  = "450"; 
 */
 
+/*
 var Height = "800";
     var Width       = "450"; 
-    var popUpWidth  = "450"; 
+    var popUpWidth  = "450";  */
 
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 18,
