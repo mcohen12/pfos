@@ -18,15 +18,6 @@
  var histCrestAnnotations=[];
  function preLoad(){
 
- document.getElementById("highContainer").addEventListener("mouseover",function(){
-  console.log("hovering over the high container");
-  document.body.style.overflow = 'hidden';
- });
- document.getElementById("highContainer").addEventListener("mouseout",function(){
-  console.log("mousing out of the high container");
-  document.body.style.overflow = 'visible';
- });
-
   var req = new XMLHttpRequest();
   req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
   req.addEventListener('load',function(){
@@ -135,7 +126,6 @@
   }
  }
     
-  
  /* format data for POEs for a point */
  function setProbOfExceed(pointID){
   defaultPOE = [];
@@ -175,41 +165,41 @@
    else
     i++;
   }
-  if(found){
-   console.log("found it");
-   let prev = -9999;
-   for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
-    let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
-    let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
-    //can get rid of all the exceed0 stuff
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
-    if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
-     prev=height;
-     continue;
-    }
-    if (x0 || x1){
-     console.log("in so far...x0 is "+x0+" and x1 is "+x1);
-     if (x1 - x0 < 20){
-      console.log("this is zoomed all the way in");
-      if (height != prev){
-       let redundant = false; let k=0;
-       while(!redundant && k<defaultPOE.length){
-        if (defaultPOE[k].height == height || defaultPOE[k].percent == percent)
-         redundant = true;
-        k++;
-       }
-       if(redundant)
-        continue;
-       extraAnnotations.push(newAnnotation);
-      // dataFS.push(exceed0);
-       prev = height;
-       continue;
+  if !(found)
+   return;
+
+  console.log("found it");
+  let prev = -9999;
+  for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
+   let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
+   let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
+   let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
+   if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
+    prev=height;
+    continue;
+   }
+   if (x0 || x1){  //as in, we've zoomed
+    console.log("in so far...x0 is "+x0+" and x1 is "+x1);
+    if (x1 - x0 < 20){
+     console.log("this is zoomed all the way in");
+     if (height != prev){
+      let redundant = false; let k=0;
+      while(!redundant && k<defaultPOE.length){
+       if (defaultPOE[k].height == height || defaultPOE[k].percent == percent)
+        redundant = true;
+       k++;
       }
+      if(redundant)
+       continue;
+      extraAnnotations.push(newAnnotation);
+      prev = height;
+      continue;
      }
     }
-    if (percent > 80 ) //we already get 90% from the standard POE
-     break;
-    let redundant = false;let k=0;
+   }
+   if (percent > 80 ) //we already get 90% from the standard POE
+    break;
+   let redundant = false;let k=0;
     while (!redundant && k<defaultPOE.length){
      if (Math.abs(defaultPOE[k].height - height) < 1 || Math.abs(defaultPOE[k].percent - percent) < 2)
       redundant = true;
@@ -220,7 +210,6 @@
     if (percent > 70 || height < actionHeight){ //only do every 10th FS POE for the levels that really don't matter
      if (j%10 == 0){
       extraAnnotations.push(newAnnotation);
-    //  dataFS.push(exceed0);  
       prev = height;
      }
     }
@@ -228,71 +217,59 @@
      if (!(x0 || x1)){
       if (j%7 == 0){
        extraAnnotations.push(newAnnotation);
-       //dataFS.push(exceed0);
        prev = height;
       }
      }
      else{ if (x1-x0 > 70){
        if (j%7 == 0){
         extraAnnotations.push(newAnnotation);
-        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 60){
        if (j%6 == 0){
         extraAnnotations.push(newAnnotation);
-        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 50){
        if (j%5 == 0){
         extraAnnotations.push(newAnnotation);
-        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 40){
        if (j%4 == 0){
         extraAnnotations.push(newAnnotation);
-        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 30){
        if (j%3 == 0){
         extraAnnotations.push(newAnnotation);
-        //dataFS.push(exceed0);
         prev = height;
        }
       }
       else if (x1-x0 > 20){
        if (j%2 == 0){
         extraAnnotations.push(newAnnotation);
-        //dataFS.push(exceed0);
         prev = height;
        }
       }
  //prob want to put this above so you get everything all the way zoomed in
       else{
         extraAnnotations.push(newAnnotation);
-        //dataFS.push(exceed0);
         prev = height;
       }
      }
     }
    }
-  }
   return dataFS;
  }
 
  function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
   data = [];
   defaultAnnotations = [];
-  //tester = document.createElement("div"); 
- // tester.className = "modal";
- // document.body.appendChild(tester);
   
   tester = document.getElementById('highContainer');
   //find station in probOfExceed
@@ -310,30 +287,13 @@
  if (histCrests[k].historicCrests[0].height != "null"){
   var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
   setHistoricCrests(pointID);
-}
-  
-
-// for(i=1;i<histCrests[k].historicCrests.length;i++){
-//  var height = Number(histCrests[k].historicCrests[i].height); var day = new Date(histCrests[k].historicCrests[i].day);
- // var notable0 = { showlegend:false, x: [.88], y:[height], mode: 'text', text: [height+" ft \u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
-  //var notable0 = { showlegend:false, x: [1], y:[height], mode: 'text', text: ["\u268A"+day.getFullYear()], legendgroup:'notable',hoverinfo:"none"}; 
-  //var notable0 = { showlegend:false, x: [1], y:[height], mode: 'text', text: ["\u268A"], legendgroup:'notable',hoverinfo:"none"}; 
-   //var notable1 = { showlegend:false, x: [90, 93], y: [height, height], mode: 'lines',legendgroup:'notable', hoverinfo:"none", line: { color: 'rgb(0,0,0)', width:1} };
-   //make legend visible for one
-   //if (i==1){
-  //  notable1.showlegend = true;
-   // notable1.name = "Notable Crests";
-   //}
-   //var notable2 = { showlegend:false, x: [93], y:[height], mode: 'text', text: day,legendgroup:'notable',hoverinfo:"none", textposition:'right' };
-   //data.push(notable0, notable1, notable2);
-  // data.push(notable0);
-  //}
-  var record = {
-   showlegend: false,
+ }
+ var record = {
+  showlegend: false,
    x: [0, 1], y: [recordHeight,recordHeight], mode: 'lines', hoverinfo:"none", line: {width: 1, dash: 'dot', color: 'rgb(0,0,0)'}
-  };
-  defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Record '+recordHeight+' ft '+ recordDay+'</b>', showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: 'black', size:15, family: 'Arial, Helvetica, sans serif'},
-   });
+ };
+ defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Record '+recordHeight+' ft '+ recordDay+'</b>', showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: 'black', size:15, family: 'Arial, Helvetica, sans serif'},
+ });
   var action = {
    showlegend: false,hoverinfo:'none',
    x: [0, 1], y: [actionHeight,actionHeight], mode: 'lines', 
@@ -362,7 +322,7 @@
   
   //figure out y ranges
   layout = {
-  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook for '+pointName+pointID+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
+  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook for '+pointName+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
    traceorder: 'grouped', dragmode: 'pan',
    margin: { l: 50, r:50, t:150 },
    yaxis: {range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))], title: '<b>River Stage (ft)</b>', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, tickfont: { family: 'Arial', size: 14},font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'} },
@@ -384,10 +344,6 @@
   makeGraph(tester,layout,pointID);
  }
  
- function hello(){
-  alert("Hellooooooo");
- }
-
  function makeGraph(target,layout,pointID,x0=null,x1=null){
   console.log("calling MakeGraph");
   extraAnnotations = [];
@@ -395,8 +351,6 @@
   let finalData = data.concat(dataFS);
   let annotations = defaultAnnotations.concat(extraAnnotations);
   annotations = annotations.concat(histCrestAnnotations);
-  //let annotations = [ { xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 0.5, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false } ];
- // annotations[0].addEventListener('click',hello);
   layout.annotations = annotations;
    
   Plotly.newPlot(target, finalData, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
