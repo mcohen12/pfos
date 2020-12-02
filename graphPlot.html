@@ -87,11 +87,11 @@
     parser = new DOMParser();
     xmlDoc = parser.parseFromString(req.responseText, "text/xml");
     let sigStages = xmlDoc.querySelector("sigstages");
-    actionHeight = parseInt(sigStages.querySelector("action").textContent);
-    let minorHeight = parseInt(sigStages.querySelector("flood").textContent);
-    let moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
-    majorHeight = parseInt(sigStages.querySelector("major").textContent);
-    let observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
+    actionHeight = Number(sigStages.querySelector("action").textContent);
+    let minorHeight = Number(sigStages.querySelector("flood").textContent);
+    let moderateHeight = Number(sigStages.querySelector("moderate").textContent);
+    majorHeight = Number(sigStages.querySelector("major").textContent);
+    let observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
     let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
     console.log("observed is "+observed);
     setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
@@ -387,14 +387,6 @@
  }
 
 </script>
-
-
-
-
-
-
-
-
 
   <section id="graphicHome">
    <div style="height:800px; padding-right:130px;" id="highContainer"></div>
