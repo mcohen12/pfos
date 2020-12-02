@@ -14,6 +14,7 @@
  var defaultAnnotations = []; // holds default annotations e.g., action height 
  var extraAnnotations=[]; //for adding annotations for POEs
  var actionHeight; //global for use in poeFS function
+ var majorHeight; 
  var defaultPOE=[];
  var histCrestAnnotations=[];
  function preLoad(){
@@ -89,7 +90,7 @@
     actionHeight = parseInt(sigStages.querySelector("action").textContent);
     let minorHeight = parseInt(sigStages.querySelector("flood").textContent);
     let moderateHeight = parseInt(sigStages.querySelector("moderate").textContent);
-    let majorHeight = parseInt(sigStages.querySelector("major").textContent);
+    majorHeight = parseInt(sigStages.querySelector("major").textContent);
     let observed = parseInt((xmlDoc.querySelector("observed datum primary")).textContent);
     let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
     console.log("observed is "+observed);
@@ -101,7 +102,7 @@
   req.send();
  }
 
- function setHistoricCrests(pointID){
+ function setHistoricCrests(pointID,y0=null,y1=null){
   histCrestAnnotations=[];
   let i=0; let found=false;
   while(i<histCrests.length && !found){
@@ -111,18 +112,28 @@
     i++;
   }
   if(found){
+   let yDiff = 1.1*(Math.max(Number(histCrests[i].historicCrests[0].height),majorHeight)) - 0.8*actionHeight;
+   if (y0 || y1)  
+    yDiff = y1-y0;
+
+   let prev = -9999;
    for(let j=0;j<histCrests[i].historicCrests.length;j++){
     let height=Number(histCrests[i].historicCrests[j].height);
     let year = Number((histCrests[i].historicCrests[j].day).slice(-4));
-    //separate annotation for the line so it goes to the y axis...?
-    
-    let newAnnotation0 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'right',text:'<b>'+height+'</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
-    let newAnnotation1 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>\u02D7</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
-    let newAnnotation2 = {xref: 'paper',yref:'y',x:1,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>'+year+'</b>',showarrow:false,hoverinfo:'none',textposition:'top left', font: {color:'black',size:15,family: 'Arial,Helvetica,sans serif',weight:900}};
-    histCrestAnnotations.push(newAnnotation0);
-    histCrestAnnotations.push(newAnnotation1);
-    histCrestAnnotations.push(newAnnotation2);
-   } 
+    let heightDiff = Math.abs(height-prev);
+    if (heightDiff > (0.019*yDiff)){
+     console.log("made it through the if in histCrests");
+     prev = height; 
+     let newAnnotation0 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'right',text:'<b>'+height+'</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+     let newAnnotation1 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>\u02D7</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+     let newAnnotation2 = {xref: 'paper',yref:'y',x:1,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>'+year+'</b>',showarrow:false,hoverinfo:'none',textposition:'top left', font: {color:'black',size:15,family: 'Arial,Helvetica,sans serif',weight:900}};
+     histCrestAnnotations.push(newAnnotation0);
+     histCrestAnnotations.push(newAnnotation1);
+     histCrestAnnotations.push(newAnnotation2);
+    } 
+   }
+   let notableCrestLabel = {xref: 'paper',x:1.01,y:prev-0.04*yDiff, xanchor: 'left',yanchor:'top',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
+     histCrestAnnotations.push(notableCrestLabel);
   }
  }
     
@@ -267,6 +278,9 @@
   return dataFS;
  }
 
+ //function makeHistCrestAnnotations(y0,y1){
+  
+
  function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
   data = [];
   defaultAnnotations = [];
@@ -286,7 +300,7 @@
 //need exception handling for this stuff
  if (histCrests[k].historicCrests[0].height != "null"){
   var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
-  setHistoricCrests(pointID);
+ // setHistoricCrests(pointID);
  }
  var record = {
   showlegend: false,
@@ -305,7 +319,7 @@
    x: [0,1], y: [minorHeight,minorHeight], mode: 'lines',
    line: { color: 'rgb(237,176,7)', width: 1}
   };
-  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: minorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Minor ('+minorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(237,176,7)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
   var moderate = {
    showlegend: false, hoverinfo:'none',
  x: [0, 1], y: [moderateHeight,moderateHeight],mode: 'lines',
@@ -317,7 +331,7 @@
    x: [0,1], y: [majorHeight,majorHeight], mode: 'lines',
    line: { color: 'rgb(179,57,219)',width: 1}
   };
-  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0.1, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
+  defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
   data.push(action,minor,moderate,major,record);
   
   //figure out y ranges
@@ -334,22 +348,21 @@
     {x:0,y:1.01,xref:'paper',xanchor:'left',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:'https://cors-anywhere.herokuapp.com/https://www.weather.gov/images/aprfc/NOAA_logo.png'}]
   };
    defaultAnnotations.push(
-   //{ xref: 'paper', yref: 'paper', x: 1, xanchor: 'left', y: 1, textangle:0, yanchor: 'middle', text: 'Probability of Exceedence', showarrow: false },
-   { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' },
-   { xref: 'paper',x:1.01,y:moderateHeight, xanchor: 'left',yanchor:'top',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
+   { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' }
    );
-  
 
    setProbOfExceed(pointID);
   makeGraph(tester,layout,pointID);
  }
  
- function makeGraph(target,layout,pointID,x0=null,x1=null){
+ function makeGraph(target,layout,pointID,y0=null,y1=null){
   console.log("calling MakeGraph");
+  console.log("y0 is "+y0+"and y1 is "+y1);
   extraAnnotations = [];
-  let dataFS = setProbOfExceedFS(pointID,x0,x1);
+  let dataFS = setProbOfExceedFS(pointID,y0,y1);
   let finalData = data.concat(dataFS);
   let annotations = defaultAnnotations.concat(extraAnnotations);
+  setHistoricCrests(pointID,y0,y1);
   annotations = annotations.concat(histCrestAnnotations);
   layout.annotations = annotations;
    
