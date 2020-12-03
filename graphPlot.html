@@ -86,6 +86,9 @@
    if (req.status == 200){
     parser = new DOMParser();
     xmlDoc = parser.parseFromString(req.responseText, "text/xml");
+   // for(var atr in xmlDoc){
+    // console.log(atr+ " is "+xmlDoc[atr]);
+    //}
     let sigStages = xmlDoc.querySelector("sigstages");
     actionHeight = Number(sigStages.querySelector("action").textContent);
     let minorHeight = Number(sigStages.querySelector("flood").textContent);
@@ -93,8 +96,8 @@
     majorHeight = Number(sigStages.querySelector("major").textContent);
     let observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
     let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
-    console.log("observed is "+observed);
-    setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
+    let pointNameXML = (xmlDoc.querySelector("site").attributes)["name"].value;;
+    setGraphParams(point,pointNameXML,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
    }
    else
     console.log("got an error");
@@ -306,7 +309,7 @@
   showlegend: false,
    x: [0, 1], y: [recordHeight,recordHeight], mode: 'lines', hoverinfo:"none", line: {width: 1, dash: 'dot', color: 'rgb(0,0,0)'}
  };
- defaultAnnotations.push({xref: 'paper',yref:'y',x:0.3, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Record '+recordHeight+' ft '+ recordDay+'</b>', showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: 'black', size:15, family: 'Arial, Helvetica, sans serif'},
+ defaultAnnotations.push({xref: 'paper',yref:'y',x:0, y:recordHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Record '+recordHeight+' ft '+ recordDay+'</b>', showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'white',font: { color: 'black', size:15, family: 'Arial, Helvetica, sans serif'},
  });
   var action = {
    showlegend: false,hoverinfo:'none',
@@ -336,7 +339,7 @@
   
   //figure out y ranges
   layout = {
-  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook for '+pointName+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
+  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook<br>'+pointName+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
    traceorder: 'grouped', dragmode: 'pan',
    margin: { l: 50, r:50, t:150 },
    yaxis: {range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))], title: '<b>River Stage (ft)</b>', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, tickfont: { family: 'Arial', size: 14},font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'} },
