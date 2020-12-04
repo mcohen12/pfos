@@ -17,6 +17,9 @@
 
   <script>
     var mymap = L.map('mapid').setView([47.925, -97.032], 7);
+    function sayHello(){
+     console.log("Hello Michelle from hovering");
+    }
 
     // These control the height and width of the image and pop up box.
     // "Height" will control the height of both the image and the pop up box.
@@ -48,7 +51,8 @@ var Height = "800";
   let id=riverPoints[i].id;
   let newPoint = L.marker(riverPoints[i].latLon,{
     color:'black',
-  }).on('click',function(){window.open("file:///C:/Users/MichelleMe/Documents/GitHub/pfos/graphPlot.html?name="+name+"&id="+id);}).addTo(mymap);
+  }).on('click',function(){window.open("file:///C:/Users/MichelleMe/Documents/GitHub/pfos/graphPlot.html?name="+name+"&id="+id);}).addTo(mymap).bindPopup(name);
+  newPoint.on('mouseover',function(e){newPoint.openPopup();});
   
  // }).on('click',function(e){makeBox(e,name,id);}).addTo(mymap);
 } 
