@@ -335,27 +335,21 @@
    line: { color: 'rgb(179,57,219)',width: 1}
   };
   defaultAnnotations.push({xref: 'paper',yref: 'y', x:0, y: majorHeight, xanchor: 'left', textangle: 0, yanchor:'middle',text: '<b>Major ('+majorHeight+' ft)</b>',showarrow:false,hoverinfo:'none',textposition:'top left',bgcolor:'rgb(179,57,219)',bordercolor:'rgb(0,0,0)',font: { color: "white", size:15, family: 'Arial,Helvetica,sans serif'}});
-  //var dummyGraph = { x:[],y:[],type:'scatter',xaxis:'x2',yaxis:'y2'};
-  var dummyGraph = {yaxis:'y2'};
+  var dummyGraph = {yaxis:'y2'}; //so that we can have second y axis
   data.push(action,minor,moderate,major,record,dummyGraph);
- // data.push(dummyGraph,action,minor,moderate,major,record);
-  //data.push(action,minor,moderate,major,record);
-  
   //figure out y ranges
   layout = {
   title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook<br>'+pointName+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
    traceorder: 'grouped', dragmode: 'pan',
    margin: { l: 50, r:80, t:150 },
-   yaxis: {range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))], title: '<b>River Stage (ft)</b>', ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, side: 'left', tickfont: { family: 'Arial', size: 14},font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'} },
+   yaxis: {range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))], title: {text:'<b>River Stage (ft)</b>',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}, ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, side: 'left', tickfont: { family: 'Arial', size: 14} },
    xaxis: {fixedrange:true, showgrid: false, showline: true, linecolor: 'black', linewidth: 2, mirror: true, showticklabels: false,range: [0,1] },
-//   xaxis2: {domain: [0,1],showticklabels:false,showgrid:false,fixedrange:true,mirror:true,linewidth:0,linecolor:'orange'},
-   //xaxis2: { showgrid: true, range: [0,1] },
    legend: {bgcolor: '#E2E2E2',bordercolor:'black',borderwidth:2},
    images: [
     {x:1,y:1.01,xref:'paper',xanchor:'right',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:'https://cors-anywhere.herokuapp.com/https://www.weather.gov/images/aprfc/nwslogo.gif'}, 
     {x:0,y:1.01,xref:'paper',xanchor:'left',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:'https://cors-anywhere.herokuapp.com/https://www.weather.gov/images/aprfc/NOAA_logo.png'}],
-   yaxis2: {title:"This is the right axis",side:"right",showticklabels:false,showgrid:false,mirror:true,showline:false,overlaying:'y'}
-  };
+   yaxis2: {title: {text:'<b>Notable Crests</b>',standoff:50,font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}},automargin:true,side:'right',showticklabels:false,showgrid:false,mirror:true,showline:false,overlaying:'y',range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))]}
+  }; //crucial to have range in y2
    defaultAnnotations.push(
    { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' }
    );
