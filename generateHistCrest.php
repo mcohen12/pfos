@@ -1,4 +1,4 @@
-#!/bin/php
+#!/usr/bin/php
 
 <?php
 
@@ -24,6 +24,7 @@ foreach($gages as $gage){
  $content = get_data($url);
  $content = explode('<b>Historic Crests</b><br />',$content);
  $content = explode('<b>(P)</b>: Preliminary values subject to further review.<br/>',$content[1]);
+// print("content is ".$content[0]);
  $content = explode('<br />',$content[0]);
  $i=0;
  //create object for json
@@ -32,8 +33,8 @@ foreach($gages as $gage){
  $point->properties = new stdClass();
  $point->properties->gage = $gage;
  //$point->properties->historicCrests = new array(); 
- while($i<count($content) && $i<10){
-  $crest = split(" ",$content[$i]);
+ while($i<count($content) && $i<30){
+  $crest = explode(" ",$content[$i]);
   print($crest[1]." ".$crest[4]."\n");
   $crestObj = (object)['height'=>$crest[1],'day'=>$crest[4]]; 
   //$point->properties->historicCrests[] = $crest[1];

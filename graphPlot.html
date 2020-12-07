@@ -3,7 +3,40 @@
 <script src="datapfos.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> 
 
+<style>
 
+ div#highContainer {
+  height: 800px;
+ }
+ @media (max-width:700px) {
+  div#highContainer {
+   margin: auto auto auto auto;
+  }
+  p#michelleTest {
+   color:lime;
+  }
+ }
+ @media (min-width:701px) and (max-width:1000px) {
+  div#highContainer {
+   width:700px;
+   margin: auto auto auto 10px;
+  }
+  p#michelleTest {
+   color:orange;
+  }
+ }
+ @media (min-width:1001px) {
+  div#highContainer {
+   width:1000px;
+   margin: auto auto auto 10px;
+  }
+  p#michelleTest {
+   color:red;
+  }
+ }
+</style>
+ 
+  
 
 <script>
  var histCrests=[];
@@ -392,7 +425,7 @@
 </script>
 
   <section id="graphicHome">
-   <div style="height:800px; margin-right:130px" id="highContainer"></div>
+   <div id="highContainer"></div>
    <!--div id="highContainer"></div-->
   </section>
   <div style="clear:both"></div> 
