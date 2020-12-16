@@ -39,6 +39,10 @@
   
 
 <script>
+ var ajaxPre = "https://cors-anywhere.herokuapp.com/"; //so this works at home and on weather.gov without having to manually edit when uploading to CMS
+ if ((window.location.href).indexOf('weather.gov') != -1)
+  ajaxPre = "";
+
  var histCrests=[];
  var probOfExceed=[];
  var probOfExceedFS=[];
@@ -53,7 +57,7 @@
  function preLoad(){
 
   var req = new XMLHttpRequest();
-  req.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
+  req.open('GET',ajaxPre+'https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
   req.addEventListener('load',function(){
    if(req.status >= 200 && req.status < 400){
     var json = (JSON.parse(req.responseText)).features;
@@ -65,7 +69,7 @@
   });
   req.send();
   var req2 = new XMLHttpRequest();
-  req2.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/CS_distributions.json',true);
+  req2.open('GET',ajaxPre+'https://www.weather.gov/source/ncrfc/CS_distributions.json',true);
   req2.addEventListener('load',function(){
    if(req2.status >= 200 && req2.status < 400){
     probOfExceedFS = JSON.parse(req2.responseText);
@@ -76,7 +80,7 @@
   req2.send();
  
   var req3 = new XMLHttpRequest();
-  req3.open('GET','https://cors-anywhere.herokuapp.com/https://www.weather.gov/source/ncrfc/CS_percentiles.json',true);
+  req3.open('GET',ajaxPre+'https://www.weather.gov/source/ncrfc/CS_percentiles.json',true);
   req3.addEventListener('load',function(){
    if(req3.status >= 200 && req3.status < 400){
     probOfExceed = JSON.parse(req3.responseText);
@@ -129,7 +133,7 @@
     majorHeight = Number(sigStages.querySelector("major").textContent);
     let observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
     let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
-    let pointNameXML = (xmlDoc.querySelector("site").attributes)["name"].value;;
+    let pointNameXML = (xmlDoc.querySelector("site").attributes)["name"].value;
     setGraphParams(point,pointNameXML,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
    }
    else
@@ -379,8 +383,8 @@
    xaxis: {fixedrange:true, showgrid: false, showline: true, linecolor: 'black', linewidth: 2, mirror: true, showticklabels: false,range: [0,1] },
    legend: {bgcolor: '#E2E2E2',bordercolor:'black',borderwidth:2},
    images: [
-    {x:1,y:1.01,xref:'paper',xanchor:'right',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:'https://cors-anywhere.herokuapp.com/https://www.weather.gov/images/aprfc/nwslogo.gif'}, 
-    {x:0,y:1.01,xref:'paper',xanchor:'left',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:'https://cors-anywhere.herokuapp.com/https://www.weather.gov/images/aprfc/NOAA_logo.png'}],
+    {x:1,y:1.01,xref:'paper',xanchor:'right',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:ajaxPre+'https://www.weather.gov/images/aprfc/nwslogo.gif'}, 
+    {x:0,y:1.01,xref:'paper',xanchor:'left',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:ajaxPre+'https://www.weather.gov/images/aprfc/NOAA_logo.png'}],
    yaxis2: {title: {text:'<b>Notable Crests</b>',standoff:50,font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}},automargin:true,side:'right',showticklabels:false,showgrid:false,mirror:true,showline:false,overlaying:'y',range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))]}
   }; //crucial to have range in y2
    defaultAnnotations.push(
