@@ -89,7 +89,7 @@
      console.log("Urlvars id is "+myId);
      for(let i=0;i<riverPoints.length;i++){
       if((riverPoints[i].id).toLowerCase() == getUrlVars()["id"].toLowerCase()){
-       makeBox("holder",riverPoints[i].name,riverPoints[i].id);
+       makeBox("holder",riverPoints[i].id);
        break;
       }
      }
@@ -115,7 +115,7 @@
   return vars;
  }
 
- function makeBox(point,pointName,pointID){
+ function makeBox(point,pointID){
   var req = new XMLHttpRequest();
   var reqLink = "https://water.weather.gov/ahps2/hydrograph_to_xml.php?output=xml&gage="+pointID;
   req.open('GET',reqLink,true);
@@ -134,6 +134,9 @@
     let observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
     let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
     let pointNameXML = (xmlDoc.querySelector("site").attributes)["name"].value;
+    console.log("pointNameXML is "+pointNameXML);
+    pointNameXML = pointNameXML.replace("  AT"," at");
+    console.log("NOW pointNameXML is "+pointNameXML);
     setGraphParams(point,pointNameXML,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
    }
    else
