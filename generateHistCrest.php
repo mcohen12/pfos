@@ -17,7 +17,7 @@ function get_data($url){
 }
 
 $wfo = "fgf";
-$gages = ['DRTN8','EGFM5','FGON8','HILN8','HICN8','OSLM5','PBNN8','WHNN8','HIGM5','CRKM5','MKLM5','ALVM5','HLLN8','CLXM5','TWVM5','HNDM5','HWYM5','DILM5','SABM5','ROSM5','SHYM5','ABRN8','VCRN8','LBNN8','KNDN8','WFON8','HWDN8','ENDN8','MPLN8','HGRN8','MTON8','GRNN8','WLHN8','NCEN8'];
+$gages = ['DRTN8','EGFM5','FGON8','HILN8','HICN8','OSLM5','PBNN8','WHNN8','HIGM5','CRKM5','MKLM5','ALVM5','HLLM5','CLXM5','TWVM5','HNDM5','HWYM5','DILM5','SABM5','ROSM5','SHYM5','ABRN8','VCRN8','LBNN8','KNDN8','WFON8','HWDN8','ENDN8','MPLN8','HGRN8','MTON8','GRNN8','WLHN8','NCEN8'];
 
 foreach($gages as $gage){
  $url = 'https://water.weather.gov/ahps2/crests.php?wfo='.$wfo.'&gage='.$gage.'&crest_type=historic';
