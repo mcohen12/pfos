@@ -1,6 +1,5 @@
 <html>
 
-<script src="datapfos.js"></script>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> 
 
 <style>
@@ -43,17 +42,17 @@
  if ((window.location.href).indexOf('weather.gov') != -1)
   ajaxPre = "";
 
- var histCrests=[];
- var probOfExceed=[];
- var probOfExceedFS=[];
- var data=[];
- var layout; 
+ /* global variables, since page has to reload if gage is changed */
+ var gage = getUrlVars()["id"].toUpperCase();
+ var pointName=""; var actionHeight; var minorHeight; var moderateHeight; var majorHeight;
+ var startValidTime=""; var endValidTime="";
+ var histCrests=[];var probOfExceed=[];var probOfExceedFS=[];
+ var observed; var dateObserved;
  var defaultAnnotations = []; // holds default annotations e.g., action height 
  var extraAnnotations=[]; //for adding annotations for POEs
- var actionHeight; //global for use in poeFS function
- var majorHeight; 
- var defaultPOE=[];
  var histCrestAnnotations=[];
+ var data=[];var layout; 
+
  function preLoad(){
 
   var req = new XMLHttpRequest();
@@ -61,8 +60,12 @@
   req.addEventListener('load',function(){
    if(req.status >= 200 && req.status < 400){
     var json = (JSON.parse(req.responseText)).features;
-    for (var i=0;i<json.length;i++)
-     histCrests[i] = json[i].properties;
+     for (var i=0;i<json.length;i++){
+      if (json[i].properties.gage.toUpperCase() == gage)
+       histCrests = json[i].properties.historicCrests;
+     }
+    if (histCrests == []) /* need exception handling */
+     console.log("need exception handling for histCrests not found");
    }
    else
     console.log("had an error");
@@ -72,7 +75,22 @@
   req2.open('GET',ajaxPre+'https://www.weather.gov/source/ncrfc/CS_distributions.json',true);
   req2.addEventListener('load',function(){
    if(req2.status >= 200 && req2.status < 400){
-    probOfExceedFS = JSON.parse(req2.responseText);
+    var json = JSON.parse(req2.responseText); 
+    for (var i=0;i<json.length;i++){
+     if (json[i].id.toUpperCase() == gage){
+      if (startValidTime == ""){
+       startValidTime = (json[i].window_start.split(" ")[0]).split("-");
+       startValidTime = startValidTime[1]+"-"+startValidTime[2]+"-"+startValidTime[0];
+      }
+      if (endValidTime == ""){
+       endValidTime = (json[i].window_end.split(" ")[0]).split("-");
+       endValidTime = endValidTime[1]+"-"+endValidTime[2]+"-"+endValidTime[0];
+      }
+      probOfExceedFS = json[i].exceedance;
+     }
+    }
+    if (probOfExceedFS == []) /* need exception handling */
+     console.log("need exception handling for propOfExceedFS not found");
    }
    else
     console.log("had a problem with grabbing from NCRFC");
@@ -83,17 +101,29 @@
   req3.open('GET',ajaxPre+'https://www.weather.gov/source/ncrfc/CS_percentiles.json',true);
   req3.addEventListener('load',function(){
    if(req3.status >= 200 && req3.status < 400){
-    probOfExceed = JSON.parse(req3.responseText);
-    let myId = getUrlVars()["id"];
-    if(getUrlVars()["id"]){
-     console.log("Urlvars id is "+myId);
-     for(let i=0;i<riverPoints.length;i++){
-      if((riverPoints[i].id).toLowerCase() == getUrlVars()["id"].toLowerCase()){
-       makeBox("holder",riverPoints[i].id);
-       break;
+    var json = JSON.parse(req3.responseText);
+    for (var i=0;i<json.length;i++){
+     if (json[i].id.toUpperCase() == gage){
+      if (startValidTime == ""){
+       startValidTime = (json[i].window_start.split(" ")[0]).split("-");
+       startValidTime = startValidTime[1]+"-"+startValidTime[2]+"-"+startValidTime[0];
       }
+      if (endValidTime == ""){
+       endValidTime = (json[i].window_end.split(" ")[0]).split("-");
+       endValidTime = endValidTime[1]+"-"+endValidTime[2]+"-"+endValidTime[0];
+      }
+      probOfExceed = json[i].exceedance;
      }
     }
+    if (probOfExceed == []) /* need exception handling */
+     console.log("need exception handling for probOfExceed not found");
+    else{
+     for (var i=0;i<probOfExceed.length;i++){
+      probOfExceed[i].height = Number(probOfExceed[i].height).toFixed(1);
+      probOfExceed[i].percent = Number(probOfExceed[i].percent);
+     }
+    }
+    makeBox(gage);
    }
    else
     console.log("had problem grabbing percentiles");
@@ -115,7 +145,7 @@
   return vars;
  }
 
- function makeBox(point,pointID){
+ function makeBox(pointID){
   var req = new XMLHttpRequest();
   var reqLink = "https://water.weather.gov/ahps2/hydrograph_to_xml.php?output=xml&gage="+pointID;
   req.open('GET',reqLink,true);
@@ -123,21 +153,16 @@
    if (req.status == 200){
     parser = new DOMParser();
     xmlDoc = parser.parseFromString(req.responseText, "text/xml");
-   // for(var atr in xmlDoc){
-    // console.log(atr+ " is "+xmlDoc[atr]);
-    //}
     let sigStages = xmlDoc.querySelector("sigstages");
     actionHeight = Number(sigStages.querySelector("action").textContent);
-    let minorHeight = Number(sigStages.querySelector("flood").textContent);
-    let moderateHeight = Number(sigStages.querySelector("moderate").textContent);
+    minorHeight = Number(sigStages.querySelector("flood").textContent);
+    moderateHeight = Number(sigStages.querySelector("moderate").textContent);
     majorHeight = Number(sigStages.querySelector("major").textContent);
-    let observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
-    let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
-    let pointNameXML = (xmlDoc.querySelector("site").attributes)["name"].value;
-    console.log("pointNameXML is "+pointNameXML);
-    pointNameXML = pointNameXML.replace("  AT"," at");
-    console.log("NOW pointNameXML is "+pointNameXML);
-    setGraphParams(point,pointNameXML,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observed,dateObserved);
+    observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
+    dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
+    pointName = (xmlDoc.querySelector("site").attributes)["name"].value;
+    pointName = pointName.replace("  AT"," at");
+    setGraphParams(pointID);
    }
    else
     console.log("got an error");
@@ -147,62 +172,41 @@
 
  function setHistoricCrests(pointID,y0=null,y1=null){
   histCrestAnnotations=[];
-  let i=0; let found=false;
-  while(i<histCrests.length && !found){
-   if((histCrests[i].gage).toUpperCase() == pointID.toUpperCase())
-    found=true;
-   else
-    i++;
-  }
-  if(found){
-   let yDiff = 1.1*(Math.max(Number(histCrests[i].historicCrests[0].height),majorHeight)) - 0.8*actionHeight;
-   if (y0 || y1)  
-    yDiff = y1-y0;
+  let yDiff = 1.1*(Math.max(Number(histCrests[0].height),majorHeight)) - 0.8*actionHeight;
+  if (y0 || y1)  
+   yDiff = y1-y0;
 
-   let prev = -9999;
-   for(let j=0;j<histCrests[i].historicCrests.length;j++){
-    let height=Number(histCrests[i].historicCrests[j].height);
-    let year = Number((histCrests[i].historicCrests[j].day).slice(-4));
-    let heightDiff = Math.abs(height-prev);
-    if (heightDiff > (0.019*yDiff)){
-     console.log("made it through the if in histCrests");
-     prev = height; 
-     let newAnnotation0 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'right',text:'<b>'+height.toFixed(2)+'</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
-     let newAnnotation1 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>\u02D7</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
-     let newAnnotation2 = {xref: 'paper',yref:'y',x:1,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>'+year+'</b>',showarrow:false,hoverinfo:'none',textposition:'top left', font: {color:'black',size:15,family: 'Arial,Helvetica,sans serif',weight:900}};
-     histCrestAnnotations.push(newAnnotation0);
-     histCrestAnnotations.push(newAnnotation1);
-     histCrestAnnotations.push(newAnnotation2);
-    } 
-   }
-   let notableCrestLabel = {xref: 'x',x:1.03,y:prev-0.04*yDiff, xanchor: 'left',yanchor:'top',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
-     histCrestAnnotations.push(notableCrestLabel);
+  let prev = -9999;
+  for(let j=0;j<histCrests.length;j++){
+   let height=Number(histCrests[j].height);
+   let year = Number((histCrests[j].day).slice(-4));
+   let heightDiff = Math.abs(height-prev);
+   if (heightDiff > (0.019*yDiff)){
+    console.log("made it through the if in histCrests");
+    prev = height; 
+    let newAnnotation0 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'right',text:'<b>'+height.toFixed(2)+'</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+    let newAnnotation1 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>\u02D7</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+    let newAnnotation2 = {xref: 'paper',yref:'y',x:1,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>'+year+'</b>',showarrow:false,hoverinfo:'none',textposition:'top left', font: {color:'black',size:15,family: 'Arial,Helvetica,sans serif',weight:900}};
+    histCrestAnnotations.push(newAnnotation0);
+    histCrestAnnotations.push(newAnnotation1);
+    histCrestAnnotations.push(newAnnotation2);
+   } 
   }
+  let notableCrestLabel = {xref: 'x',x:1.03,y:prev-0.04*yDiff, xanchor: 'left',yanchor:'top',textangle:-90,text:'<b>Notable Crests</b>',showarrow:false,hoverinfo:'none',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}
+    histCrestAnnotations.push(notableCrestLabel);
  }
-    
+
  /* format data for POEs for a point */
  function setProbOfExceed(pointID){
-  defaultPOE = [];
-  let i=0; let found=false;
-  while(i<probOfExceed.length && !found){
-   if((probOfExceed[i].id).toUpperCase() == pointID.toUpperCase())
-    found=true;
-   else
-    i++;
-  }
   let prev = -9999;
-  if(found){
-   for(let j=0;j<probOfExceed[i].exceedance.length;j++){
-    let height = (Number(probOfExceed[i].exceedance[j].height)).toFixed(1);
-    let percent = Number(probOfExceed[i].exceedance[j].percent);
-    defaultPOE.push({'percent':percent,'height':height});
-    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
-    if (height != prev){
-   //  data.push(exceed0);
-     defaultAnnotations.push(newAnnotation);
-    }
-    prev=height;
-   }
+  /* need exception handling */
+  for(let j=0;j<probOfExceed.length;j++){
+   let height = (Number(probOfExceed[j].height)).toFixed(1);
+   let percent = Number(probOfExceed[j].percent);
+   let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+   if (height != prev)
+    defaultAnnotations.push(newAnnotation);
+   prev=height;
   }
  }
  
@@ -210,23 +214,16 @@
  function setProbOfExceedFS(pointID,x0=null,x1=null){
   console.log("calling setprobofExceedFS");
   console.log("x0 is "+x0+" and x1 is "+x1);
-  let i=0; let found=false;
+  /* need exception handling */
+  if (probOfExceedFS == [])
+   return; //this might be enough
   let dataFS = [];
   //find the right station
-  while(i<probOfExceedFS.length && !found){
-   if((probOfExceedFS[i].id).toUpperCase() == pointID.toUpperCase())
-    found=true;
-   else
-    i++;
-  }
-  if (!found)
-   return;
 
-  console.log("found it");
   let prev = -9999;
-  for (j=0; j<probOfExceedFS[i].exceedance.length;j++){
-   let height = (Number(probOfExceedFS[i].exceedance[j].height)).toFixed(1);
-   let percent = Math.round(Number(probOfExceedFS[i].exceedance[j].percent));
+  for (j=0; j<probOfExceedFS.length;j++){
+   let height = (Number(probOfExceedFS[j].height)).toFixed(1);
+   let percent = Math.round(Number(probOfExceedFS[j].percent));
    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
    if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
     prev=height;
@@ -238,8 +235,8 @@
      console.log("this is zoomed all the way in");
      if (height != prev){
       let redundant = false; let k=0;
-      while(!redundant && k<defaultPOE.length){
-       if (defaultPOE[k].height == height || defaultPOE[k].percent == percent)
+      while(!redundant && k<probOfExceed.length){
+       if (probOfExceed[k].height == height || probOfExceed[k].percent == percent)
         redundant = true;
        k++;
       }
@@ -254,8 +251,8 @@
    if (percent > 80 ) //we already get 90% from the standard POE
     break;
    let redundant = false;let k=0;
-    while (!redundant && k<defaultPOE.length){
-     if (Math.abs(defaultPOE[k].height - height) < 1 || Math.abs(defaultPOE[k].percent - percent) < 2)
+    while (!redundant && k<probOfExceed.length){
+     if (Math.abs(probOfExceed[k].height - height) < 1 || Math.abs(probOfExceed[k].percent - percent) < 2)
       redundant = true;
      k++;
     }
@@ -324,7 +321,7 @@
  //function makeHistCrestAnnotations(y0,y1){
   
 
- function setGraphParams(point,pointName,pointID,actionHeight,minorHeight,moderateHeight,majorHeight,observedHeight,dateObserved){
+ function setGraphParams(pointID){
   data = [];
   defaultAnnotations = [];
   
@@ -333,17 +330,9 @@
   
   //setProbOfExceed(pointID);
 
-  let k=0; found=false;
-  while(k<histCrests.length && !found){
-   if ((histCrests[k].gage).toUpperCase() == pointID.toUpperCase())
-    found=true;
-   else
-    k++;
-  }
 //need exception handling for this stuff
- if (histCrests[k].historicCrests[0].height != "null"){
-  var recordHeight = Number(histCrests[k].historicCrests[0].height); var recordDay = histCrests[k].historicCrests[0].day;
- // setHistoricCrests(pointID);
+ if (histCrests[0].height != "null"){ /*does this even make sense? */
+  var recordHeight = Number(histCrests[0].height); var recordDay = histCrests[0].day;
  }
  var record = {
   showlegend: false,
@@ -379,7 +368,7 @@
   data.push(action,minor,moderate,major,record,dummyGraph);
   //figure out y ranges
   layout = {
-  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook<br>'+pointName+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid 01-27-2020 through 05-19-2020</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
+  title: { text: '<span style=\'font-size:17;font-weight:bold;color:black;\'>2020 Spring Flood Outlook<br>'+pointName+'</span><br><span style=\'color:black;font-size:14;padding-bottom:30px\'>Valid '+startValidTime+' through '+endValidTime+'</span><br><span style=\'color:navy;font-size:15;font-weight:bold;\'> % Chance of reaching or exceeding this level</span>', font:{family: 'Arial,Helvetica,sans serif'}},
    traceorder: 'grouped', dragmode: 'pan',
    margin: { l: 50, r:80, t:150 },
    yaxis: {range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))], title: {text:'<b>River Stage (ft)</b>',font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}}, ticks: 'outside', linecolor: 'black', linewidth: 2, mirror: true, side: 'left', tickfont: { family: 'Arial', size: 14} },
@@ -391,7 +380,7 @@
    yaxis2: {title: {text:'<b>Notable Crests</b>',standoff:50,font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}},automargin:true,side:'right',showticklabels:false,showgrid:false,mirror:true,showline:false,overlaying:'y',range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))]}
   }; //crucial to have range in y2
    defaultAnnotations.push(
-   { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observedHeight+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' }
+   { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observed+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' }
    );
 
    setProbOfExceed(pointID);
