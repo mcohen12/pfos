@@ -49,10 +49,9 @@
 
  /* global variables, since page has to reload if gage is changed */
  var gage = getUrlVars()["id"].toUpperCase();
- var pointName=""; var actionHeight; var minorHeight; var moderateHeight; var majorHeight;
+ var pointName=""; var actionHeight; var minorHeight; var moderateHeight; var majorHeight; var recordHeight
  var startValidTime=""; var endValidTime="";
  var histCrests=[];var probOfExceed=[];var probOfExceedFS=[];
- var observed; var dateObserved;
  var defaultAnnotations = []; // holds default annotations e.g., action height 
  var extraAnnotations=[]; //for adding annotations for POEs
  var histCrestAnnotations=[];
@@ -163,8 +162,8 @@
     minorHeight = Number(sigStages.querySelector("flood").textContent);
     moderateHeight = Number(sigStages.querySelector("moderate").textContent);
     majorHeight = Number(sigStages.querySelector("major").textContent);
-    observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
-    dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
+    let observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
+    let dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
     document.getElementById("riverLevel").textContent = "River Level: "+observed+" ft as of "+dateObserved;
     pointName = (xmlDoc.querySelector("site").attributes)["name"].value;
     pointName = pointName.replace("  AT"," at");
@@ -178,7 +177,7 @@
 
  function setHistoricCrests(pointID,y0=null,y1=null){
   histCrestAnnotations=[];
-  let yDiff = 1.1*(Math.max(Number(histCrests[0].height),majorHeight)) - 0.8*actionHeight;
+  let yDiff = 1.1*(Math.max(Number(recordHeight),majorHeight)) - 0.8*actionHeight;
   if (y0 || y1)  
    yDiff = y1-y0;
 
@@ -215,117 +214,41 @@
    prev=height;
   }
  }
- 
- /* format data for full spectrum POEs for a point */
- function setProbOfExceedFS(pointID,x0=null,x1=null){
-  console.log("calling setprobofExceedFS");
-  console.log("x0 is "+x0+" and x1 is "+x1);
-  /* need exception handling */
+
+ function setProbOfExceedFS(pointID,y0,y1){
   if (probOfExceedFS == [])
-   return; //this might be enough
+   return; /*prob enough exception handling */
+
   let dataFS = [];
-  //find the right station
+  let yDiff = 1.1*(Math.max(Number(recordHeight),majorHeight)) - 0.8*actionHeight;
+  if (y0 || y1)  
+   yDiff = y1-y0;
 
   let prev = -9999;
-  for (j=0; j<probOfExceedFS.length;j++){
+  /*set up an annotation for all of them */
+  for (j=0;j<probOfExceedFS.length;j++){
    let height = (Number(probOfExceedFS[j].height)).toFixed(1);
    let percent = Math.round(Number(probOfExceedFS[j].percent));
-   let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
-   if (height == prev || Math.abs(height-prev) < 1){ //check so that we don't stack stuff... when you get to higher percentages heights tend to repeat
-    prev=height;
-    continue;
-   }
-   if (x0 || x1){  //as in, we've zoomed
-    console.log("in so far...x0 is "+x0+" and x1 is "+x1);
-    if (x1 - x0 < 20){
-     console.log("this is zoomed all the way in");
-     if (height != prev){
-      let redundant = false; let k=0;
-      while(!redundant && k<probOfExceed.length){
-       if (probOfExceed[k].height == height || probOfExceed[k].percent == percent)
-        redundant = true;
-       k++;
-      }
-      if(redundant)
-       continue;
-      extraAnnotations.push(newAnnotation);
-      prev = height;
-      continue;
-     }
-    }
-   }
-   if (percent > 80 ) //we already get 90% from the standard POE
-    break;
-   let redundant = false;let k=0;
-    while (!redundant && k<probOfExceed.length){
-     if (Math.abs(probOfExceed[k].height - height) < 1 || Math.abs(probOfExceed[k].percent - percent) < 2)
-      redundant = true;
+
+   let heightDiff = Math.abs(height-prev);
+   if (heightDiff > (0.019*yDiff)){
+    let redundant=false;let k=0;
+    while(!redundant && k<probOfExceed.length){
+     if (Math.abs(probOfExceed[k].height - height) < 0.023*yDiff)
+      redundant=true;
      k++;
     }
     if(redundant)
      continue;
-    if (percent > 70 || height < actionHeight){ //only do every 10th FS POE for the levels that really don't matter
-     if (j%10 == 0){
-      extraAnnotations.push(newAnnotation);
-      prev = height;
-     }
-    }
-    else{
-     if (!(x0 || x1)){
-      if (j%7 == 0){
-       extraAnnotations.push(newAnnotation);
-       prev = height;
-      }
-     }
-     else{ if (x1-x0 > 70){
-       if (j%7 == 0){
-        extraAnnotations.push(newAnnotation);
-        prev = height;
-       }
-      }
-      else if (x1-x0 > 60){
-       if (j%6 == 0){
-        extraAnnotations.push(newAnnotation);
-        prev = height;
-       }
-      }
-      else if (x1-x0 > 50){
-       if (j%5 == 0){
-        extraAnnotations.push(newAnnotation);
-        prev = height;
-       }
-      }
-      else if (x1-x0 > 40){
-       if (j%4 == 0){
-        extraAnnotations.push(newAnnotation);
-        prev = height;
-       }
-      }
-      else if (x1-x0 > 30){
-       if (j%3 == 0){
-        extraAnnotations.push(newAnnotation);
-        prev = height;
-       }
-      }
-      else if (x1-x0 > 20){
-       if (j%2 == 0){
-        extraAnnotations.push(newAnnotation);
-        prev = height;
-       }
-      }
- //prob want to put this above so you get everything all the way zoomed in
-      else{
-        extraAnnotations.push(newAnnotation);
-        prev = height;
-      }
-     }
-    }
-   }
-  return dataFS;
- }
 
+    prev=height;
+    let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
+    extraAnnotations.push(newAnnotation);
+   }
+  }
+ }
+ 
  //function makeHistCrestAnnotations(y0,y1){
-  
 
  function setGraphParams(pointID){
   data = [];
@@ -338,7 +261,7 @@
 
 //need exception handling for this stuff
  if (histCrests[0].height != "null"){ /*does this even make sense? */
-  var recordHeight = Number(histCrests[0].height); var recordDay = histCrests[0].day;
+  recordHeight = Number(histCrests[0].height); var recordDay = histCrests[0].day;
  }
  var record = {
   showlegend: false,
@@ -397,14 +320,17 @@
   console.log("calling MakeGraph");
   console.log("y0 is "+y0+"and y1 is "+y1);
   extraAnnotations = [];
-  let dataFS = setProbOfExceedFS(pointID,y0,y1);
-  let finalData = data.concat(dataFS);
+  //let dataFS = setProbOfExceedFS(pointID,y0,y1);
+  setProbOfExceedFS(pointID,y0,y1);
+  //let finalData = data.concat(dataFS);
+  
   let annotations = defaultAnnotations.concat(extraAnnotations);
   setHistoricCrests(pointID,y0,y1);
   annotations = annotations.concat(histCrestAnnotations);
   layout.annotations = annotations;
    
-  Plotly.newPlot(target, finalData, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
+  //Plotly.newPlot(target, finalData, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
+  Plotly.newPlot(target, data, layout, {responsive:true,scrollZoom:true,modeBarButtonsToRemove: ['select2d','pan2d','lasso2d','hoverClosestCartesian','hoverCompareCartesian','toggleSpikelines']});
 
  target.on('plotly_relayout',
   function(eventdata){
