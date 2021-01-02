@@ -33,6 +33,11 @@
    color:red;
   }
  }
+ p#riverLevel {
+  font-weight:bold;
+  font-family: 'Arial,Helvetica, sans serif';
+  color:navy;
+ }
 </style>
  
   
@@ -160,6 +165,7 @@
     majorHeight = Number(sigStages.querySelector("major").textContent);
     observed = Number((xmlDoc.querySelector("observed datum primary")).textContent);
     dateObserved = new Date((xmlDoc.querySelector("observed datum valid")).textContent);
+    document.getElementById("riverLevel").textContent = "River Level: "+observed+" ft as of "+dateObserved;
     pointName = (xmlDoc.querySelector("site").attributes)["name"].value;
     pointName = pointName.replace("  AT"," at");
     setGraphParams(pointID);
@@ -379,9 +385,9 @@
     {x:0,y:1.01,xref:'paper',xanchor:'left',yref:'paper',yanchor:'bottom',sizex:0.2,sizey:0.2,source:ajaxPre+'https://www.weather.gov/images/aprfc/NOAA_logo.png'}],
    yaxis2: {title: {text:'<b>Notable Crests</b>',standoff:50,font:{size:16,color:'black',family:'Arial,Helvetica,sans serif'}},automargin:true,side:'right',showticklabels:false,showgrid:false,mirror:true,showline:false,overlaying:'y',range: [0.8*actionHeight,1.1*(Math.max(recordHeight,majorHeight))]}
   }; //crucial to have range in y2
-   defaultAnnotations.push(
-   { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observed+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' }
-   );
+//   defaultAnnotations.push(
+ //  { xref: 'paper',yref: 'paper',x: 0.01,y:0.04, xanchor: 'left',textangle:0,yanchor: 'middle',text: '<b>River Level: '+observed+' ft as of '+dateObserved+'</b> ',showarrow: false,hoverinfo:'none' }
+  // );
 
    setProbOfExceed(pointID);
   makeGraph(tester,layout,pointID);
@@ -423,6 +429,7 @@
   <section id="graphicHome">
    <div id="highContainer"></div>
    <!--div id="highContainer"></div-->
+   <p id="riverLevel"></p>
   </section>
   <div style="clear:both"></div> 
 
