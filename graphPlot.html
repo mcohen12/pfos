@@ -167,7 +167,7 @@
     if (heightDiff > (0.019*yDiff)){
      console.log("made it through the if in histCrests");
      prev = height; 
-     let newAnnotation0 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'right',text:'<b>'+height+'</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
+     let newAnnotation0 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'right',text:'<b>'+height.toFixed(2)+'</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
      let newAnnotation1 = {xref: 'paper',yref:'y',x:0.99,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>\u02D7</b>',showarrow:false,hoverinfo:'none',textposition:'top right',font: {color:'black',size:15,family: 'Arial,Helvetica, sans serif', weight:900}};
      let newAnnotation2 = {xref: 'paper',yref:'y',x:1,y:height,textangle:0,yanchor:'middle',xanchor:'left',text:'<b>'+year+'</b>',showarrow:false,hoverinfo:'none',textposition:'top left', font: {color:'black',size:15,family: 'Arial,Helvetica,sans serif',weight:900}};
      histCrestAnnotations.push(newAnnotation0);
