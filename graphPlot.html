@@ -60,7 +60,7 @@
  function preLoad(){
 
   var req = new XMLHttpRequest();
-  req.open('GET',ajaxPre+'https://www.weather.gov/source/aprfc/histCrestsfgf.json',true);
+  req.open('GET',ajaxPre+'https://www.weather.gov/source/aprfc/mergedCrestsfgf.json',true);
   req.addEventListener('load',function(){
    if(req.status >= 200 && req.status < 400){
     var json = (JSON.parse(req.responseText)).features;
