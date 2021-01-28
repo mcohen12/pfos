@@ -225,6 +225,7 @@
    yDiff = y1-y0;
 
   let prev = -9999;
+  let prevPercent = -9999;  //with rounding, end up with some weird issues if we don't check percent... like 5% meaning 2 different heights
   /*set up an annotation for all of them */
   for (j=0;j<probOfExceedFS.length;j++){
    let height = (Number(probOfExceedFS[j].height)).toFixed(1);
@@ -234,7 +235,7 @@
    if (heightDiff > (0.019*yDiff)){
     let redundant=false;let k=0;
     while(!redundant && k<probOfExceed.length){
-     if (Math.abs(probOfExceed[k].height - height) < 0.023*yDiff)
+     if ((Math.abs(probOfExceed[k].height - height) < 0.023*yDiff) || (prevPercent == percent))
       redundant=true;
      k++;
     }
@@ -242,6 +243,7 @@
      continue;
 
     prev=height;
+    prevPercent=percent;
     let newAnnotation = {xref: 'paper',yref:'y',x:0.5,y:height,textangle:0,yanchor:'middle',text:'<b>'+height+' ft\u2014\u2014\u2014\u2014\u2014\u2014'+percent+'%</b>',showarrow:false,hoverinfo:'none',textposition:'top left',font: {color:'navy',size:15,family: 'Arial,Helvetica, sans serif'}};
     extraAnnotations.push(newAnnotation);
    }
